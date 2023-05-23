@@ -109,7 +109,7 @@ export class MainScene {
 	public _frequencyPlay: boolean = false;
 
 	//Mobile
-	private _grounded!: boolean;
+
 	public horizontal: number = 0;
 	public vertical: number = 0;
 	//tracks whether or not there is movement in that axis
@@ -139,7 +139,6 @@ export class MainScene {
 	public count: number = 0;
 
 	private _state: number = 0;
-	private quit!: boolean;
 
 	public mobileLeft!: boolean;
 	public mobileRight!: boolean;
@@ -153,9 +152,6 @@ export class MainScene {
 	public displayPosition: any;
 
 	private _moveDirection: Vector3 = new Vector3();
-
-	private _gravity: Vector3 = new Vector3();
-	private _lastGroundPos: Vector3 = Vector3.Zero();
 
 	//animations
 	private _run!: AnimationGroup;
@@ -196,7 +192,7 @@ export class MainScene {
 		this.engine = new Engine(this.canvas, true);
 
 		this.scene = this.CreateScene();
-		this.CreateEnvironment();
+
 		this.scene.enablePhysics(
 			new Vector3(0, -9.81, 0),
 			new CannonJSPlugin(true, 10, CANNON),
@@ -236,14 +232,13 @@ export class MainScene {
 
 		//  adding Gui menu
 
-		// const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI('UI')
-		// guiMenu.idealHeight = 720
+		0;
 
 		const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 		this._playerUI = playerUI;
 		this._playerUI.idealHeight = 720;
 
-		this.engine.displayLoadingUI();
+		// this.engine.displayLoadingUI();
 
 		this._createPauseMenu();
 		this._createControlsMenu();
@@ -547,7 +542,7 @@ export class MainScene {
 		SceneLoader.ImportMesh(
 			"",
 			"./models/",
-			"forest1.glb",
+			"forest2.glb",
 			this.scene,
 			(
 				newMeshes: any,
@@ -588,7 +583,7 @@ export class MainScene {
 
 				newMeshes[0].position = new Vector3(0, 0, 0);
 
-				this.engine.hideLoadingUI();
+				// this.engine.hideLoadingUI();
 
 				//this.scene.attachControl();
 			},
@@ -639,7 +634,7 @@ export class MainScene {
 
 		outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
 
-		SceneLoader.ImportMeshAsync(null, "./models/", "newmulti002.glb").then(
+		SceneLoader.ImportMeshAsync(null, "./models/", "player2.glb").then(
 			(result: any) => {
 				this.hero = result.meshes[0];
 
@@ -666,9 +661,9 @@ export class MainScene {
 				weapen.attachToBone(heroSkle.bones[10], result.meshes[1]);
 
 				this._run = result.animationGroups[4];
-				this._idle = result.animationGroups[2];
-				this._catch = result.animationGroups[0];
-				this._win = result.animationGroups[1];
+				this._idle = result.animationGroups[0];
+				this._catch = result.animationGroups[1];
+				this._win = result.animationGroups[2];
 				this._loss = result.animationGroups[3];
 
 				this._run.loopAnimation = true;
@@ -799,10 +794,6 @@ export class MainScene {
 
 		return this.camera;
 	}
-
-	async CreateEnvironment(): Promise<void> {}
-
-	async createPlayer1(): Promise<void> {}
 
 	private _createPauseMenu(): void {
 		//this.gamePaused = false;
@@ -1434,62 +1425,6 @@ export class MainScene {
 	private _updateCamera(): void {
 		//trigger areas for rotating camera view
 
-		// if (this.horizontalAxis > 0) {
-		// 	//rotates to the right
-		// 	this._camRoot.rotation = Vector3.Lerp(
-		// 		this._camRoot.rotation,
-		// 		new Vector3(
-		// 			this._camRoot.rotation.x,
-		// 			Math.PI / 2,
-		// 			this._camRoot.rotation.z,
-		// 		),
-		// 		0.4,
-		// 	);
-		// } else if (this.horizontalAxis < 0) {
-		// 	//rotates to the left
-		// 	this._camRoot.rotation = Vector3.Lerp(
-		// 		this._camRoot.rotation,
-		// 		new Vector3(
-		// 			this._camRoot.rotation.x,
-		// 			Math.PI,
-		// 			this._camRoot.rotation.z,
-		// 		),
-		// 		0.4,
-		// 	);
-		// }
-		//rotates the camera to point down at the player when they enter the area, and returns it back to normal when they exit
-
-		// if (this.verticalAxis > 0) {
-		// 	this._yTilt.rotation = Vector3.Lerp(
-		// 		this._yTilt.rotation,
-		// 		MainScene.DOWN_TILT,
-		// 		0.4,
-		// 	);
-		// } else if (this.verticalAxis < 0) {
-		// 	this._yTilt.rotation = Vector3.Lerp(
-		// 		this._yTilt.rotation,
-		// 		MainScene.ORIGINAL_TILT,
-		// 		0.4,
-		// 	);
-		// }
-
-		//once you've reached the destination area, return back to the original orientation, if they leave rotate it to the previous orientation
-
-		// if (this.verticalAxis > 0) {
-		// 	this._yTilt.rotation = Vector3.Lerp(
-		// 		this._yTilt.rotation,
-		// 		MainScene.ORIGINAL_TILT,
-		// 		0.4,
-		// 	);
-		// } else if (this.verticalAxis < 0) {
-		// 	this._yTilt.rotation = Vector3.Lerp(
-		// 		this._yTilt.rotation,
-		// 		MainScene.DOWN_TILT,
-		// 		0.4,
-		// 	);
-		// }
-
-		//update camera postion up/down movement
 		let centerPlayer = this.mesh.position.y + 2;
 
 		this._camRoot.position = Vector3.Lerp(
@@ -1528,114 +1463,10 @@ export class MainScene {
 		return this.camera;
 	}
 
-	// private _floorRaycast(
-	// 	offsetx: number,
-	// 	offsetz: number,
-	// 	raycastlen: number,
-	// ): Vector3 {
-	// 	//position the raycast from bottom center of mesh
-	// 	let raycastFloorPos = new Vector3(
-	// 		this.mesh.position.x + offsetx,
-	// 		this.mesh.position.y + 0.5,
-	// 		this.mesh.position.z + offsetz,
-	// 	);
-	// 	let ray = new Ray(raycastFloorPos, Vector3.Up().scale(-1), raycastlen);
-
-	// 	//defined which type of meshes should be pickable
-	// 	let predicate = function (mesh: any) {
-	// 		return mesh.isPickable && mesh.isEnabled();
-	// 	};
-
-	// 	let pick: any = this.scene.pickWithRay(ray, predicate);
-
-	// 	if (pick.hit) {
-	// 		//grounded
-	// 		return pick.pickedPoint;
-	// 	} else {
-	// 		//not grounded
-	// 		return Vector3.Zero();
-	// 	}
-	// }
-	// private _isGrounded(): boolean {
-	// 	if (this._floorRaycast(0, 0, 0.6)) {
-	// 		return false;
-	// 	} else {
-	// 		return true;
-	// 	}
-	// }
-	// private _updateGroundDetection(): void {
-	// 	this._deltaTime = this.scene.getEngine().getDeltaTime() / 1000.0;
-
-	// 	//if not grounded
-	// 	if (!this._isGrounded()) {
-	// 		//if the body isnt grounded, check if it's on a slope and was either falling or walking onto it
-	// 		if (this._gravity.y <= 0) {
-	// 			//if you are considered on a slope, you're able to jump and gravity wont affect you
-	// 			this._gravity.y = 0;
-
-	// 			this._grounded = true;
-	// 		} else {
-	// 			//keep applying gravity
-	// 			this._gravity = this._gravity.addInPlace(
-	// 				Vector3.Up().scale(this._deltaTime * MainScene.GRAVITY),
-	// 			);
-	// 			this._grounded = false;
-	// 		}
-	// 	}
-
-	// 	// //limit the speed of gravity to the negative of the jump power
-	// 	// if (this._gravity.y < -Player.JUMP_FORCE) {
-	// 	// 	this._gravity.y = -Player.JUMP_FORCE;
-	// 	// }
-
-	// 	//cue falling animation once gravity starts pushing down
-	// 	// if (this._gravity.y < 0) {
-	// 	// 	//todo: play a falling anim if not grounded BUT not on a slope
-	// 	// 	this._isFalling = true;
-	// 	// }
-
-	// 	//update our movement to account for jumping
-	// 	this.mesh.moveWithCollisions(this._moveDirection.addInPlace(this._gravity));
-
-	// 	// if (this._isGrounded()) {
-	// 	// 	this._gravity.y = 0;
-	// 	// 	this._grounded = true;
-	// 	// 	//keep track of last known ground position
-	// 	// 	this._lastGroundPos.copyFrom(this.mesh.position);
-
-	// 	// 	this._jumpCount = 1;
-	// 	// 	//dashing reset
-	// 	// 	this._canDash = true;
-	// 	// 	//reset sequence(needed if we collide with the ground BEFORE actually completing the dash duration)
-	// 	// 	this.dashTime = 0;
-	// 	// 	this._dashPressed = false;
-
-	// 	// 	//jump & falling animation flags
-	// 	// 	this._jumped = false;
-	// 	// 	this._isFalling = false;
-	// 	// }
-
-	// 	// //Jump detection
-	// 	// if (this._input.jumpKeyDown && this._jumpCount > 0) {
-	// 	// 	this._gravity.y = Player.JUMP_FORCE;
-	// 	// 	this._jumpCount--;
-
-	// 	// 	//jumping and falling animation flags
-	// 	// 	this._jumped = true;
-	// 	// 	this._isFalling = false;
-	// 	// 	this._jumpingSfx.play();
-
-	// 	// 	//tutorial, if the player jumps for the first time
-	// 	// 	if (!this.tutorial_jump) {
-	// 	// 		this.tutorial_jump = true;
-	// 	// 	}
-	// 	// }
-	// }
-
 	private _loadSounds(): void {
 		this.startSound = new Sound(
 			"pleasentsound",
-			"./sounds/background.wav",
+			"./sounds/background1.wav",
 			this.scene,
 			function () {},
 			{
@@ -1647,7 +1478,7 @@ export class MainScene {
 
 		this.walkSound = new Sound(
 			"walk",
-			"./sounds/walk.wav",
+			"./sounds/walk1.wav",
 			this.scene,
 			function () {},
 			{ volume: 0.3 },
@@ -1655,7 +1486,7 @@ export class MainScene {
 
 		this.winSound = new Sound(
 			"win",
-			"./sounds/win.mp3",
+			"./sounds/win1.mp3",
 			this.scene,
 			function () {},
 			{ volume: 0.3 },
@@ -1663,7 +1494,7 @@ export class MainScene {
 
 		this.lossSound = new Sound(
 			"loss",
-			"./sounds/loss.mp3",
+			"./sounds/loss1.mp3",
 			this.scene,
 			function () {},
 			{
