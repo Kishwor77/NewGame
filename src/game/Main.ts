@@ -216,10 +216,6 @@ export class MainScene {
 					this.scene.render();
 					break;
 				case State.GAME:
-					if (this.quit) {
-						this.CreateScene();
-						this.quit = false;
-					}
 					this.scene.render();
 					break;
 				case State.LOSE:
@@ -477,19 +473,19 @@ export class MainScene {
 
 		scene.collisionsEnabled = true;
 
-		const envTex = CubeTexture.CreateFromPrefilteredData(
-			"./environment/environment.env",
-			scene,
-		);
-		envTex.gammaSpace = false;
-		envTex.rotationY = Math.PI / 2;
+		// const envTex = CubeTexture.CreateFromPrefilteredData(
+		// 	"./environment/environment.env",
+		// 	scene,
+		// );
+		// envTex.gammaSpace = true;
+		// envTex.rotationY = Math.PI / 4;
 
-		scene.environmentTexture = envTex;
+		// scene.environmentTexture = envTex;
 
-		scene.createDefaultSkybox(envTex, true, 1000, 0.25);
+		// scene.createDefaultSkybox(envTex, true, 1000, 0.25);
 
 		var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
-		light.intensity = 0.6;
+		light.intensity = 2;
 
 		const camera = new ArcRotateCamera(
 			"camera",
@@ -712,9 +708,11 @@ export class MainScene {
 
 					this._scoreDisplay.text = `Score: ${this.score}`;
 
-					this._updateFromKeyboard();
-					this._animatePlayer();
-					this._updateFromControls();
+					if (this.Loaded) {
+						this._updateFromKeyboard();
+						this._animatePlayer();
+						this._updateFromControls();
+					}
 
 					if (
 						!this.gamePaused &&
@@ -737,7 +735,8 @@ export class MainScene {
 						this.soundCount == this.visualCount &&
 						this.Loaded &&
 						!this.gamePaused &&
-						this.visualTestCount == 0
+						this.visualTestCount == 0 &&
+						!this._frequencyPlay
 					) {
 						this.visualTestCount++;
 
@@ -923,18 +922,31 @@ export class MainScene {
 			//play transition sound
 		});
 
-		const quitBtn = Button.CreateSimpleButton("quit", "QUIT");
-		quitBtn.width = 0.18;
-		quitBtn.height = "44px";
-		quitBtn.color = "white";
-		quitBtn.fontFamily = "Viga";
-		quitBtn.paddingBottom = "12px";
-		quitBtn.cornerRadius = 14;
-		quitBtn.fontSize = "12px";
-		resumeBtn.textBlock.resizeToFit = true;
-		quitBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		quitBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-		stackPanel.addControl(quitBtn);
+		// const quitBtn = Button.CreateSimpleButton("quit", "QUIT");
+		// quitBtn.width = 0.18;
+		// quitBtn.height = "44px";
+		// quitBtn.color = "white";
+		// quitBtn.fontFamily = "Viga";
+		// quitBtn.paddingBottom = "12px";
+		// quitBtn.cornerRadius = 14;
+		// quitBtn.fontSize = "12px";
+		// resumeBtn.textBlock.resizeToFit = true;
+		// quitBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+		// quitBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+		// stackPanel.addControl(quitBtn);
+
+		// quitBtn.onPointerDownObservable.add(() => {
+		// 	//open controls screen
+		// 	//this.scene.detachControl();
+
+		// 	this.scene.detachControl();
+		// 	this.gamePaused = true;
+		// 	this.Loaded = false;
+
+		// 	this.scene = this.CreateScene();
+
+		// 	//play transition sound
+		// });
 
 		//set up transition effect
 		Effect.RegisterShader(
@@ -951,12 +963,12 @@ export class MainScene {
 		);
 		this.fadeLevel = 1.0;
 
-		quitBtn.onPointerDownObservable.add(() => {
-			this.scene.detachControl();
-			//this.CreateScene();
+		// quitBtn.onPointerDownObservable.add(() => {
+		// 	this.scene.detachControl();
+		// 	//this.CreateScene();
 
-			//--SOUNDS--
-		});
+		// 	//--SOUNDS--
+		// });
 	}
 	private _createControlsMenu(): void {
 		const controls = new Rectangle();
@@ -1315,6 +1327,7 @@ export class MainScene {
 			this._mobileJump
 		) {
 			this._currentAnim = this._run;
+			this.onRun.notifyObservers(true);
 			this._currentAnim.play(this._currentAnim.loopAnimation);
 			this.vertical = 0;
 			this.verticalAxis = 0;
@@ -1383,7 +1396,7 @@ export class MainScene {
 				this.object.position.z = this.displayPosition.z - 5;
 				this.object.position.x = this.displayPosition.x + 2;
 				this.object.isVisible = true;
-
+				this.onRun.notifyObservers(false);
 				setTimeout(() => {
 					this._mobileDash = true;
 
