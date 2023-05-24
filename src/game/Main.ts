@@ -73,7 +73,7 @@ export class MainScene {
 
 	//for the visual test
 	public soundCount: number = 0;
-	public visualCount: number = Math.floor(Math.random() * (7 - 5 + 1) + 5); //generate the output according to number
+	public visualCount: number = 2; // Math.floor(Math.random() * (7 - 5 + 1) + 5); //generate the output according to number
 	public visualTestCount: number = 0;
 
 	// Math.floor(Math.random() * (7 - 5 + 1) + 5)
@@ -238,7 +238,7 @@ export class MainScene {
 		this._playerUI = playerUI;
 		this._playerUI.idealHeight = 720;
 
-		// this.engine.displayLoadingUI();
+		this.engine.displayLoadingUI();
 
 		this._createPauseMenu();
 		this._createControlsMenu();
@@ -542,7 +542,7 @@ export class MainScene {
 		SceneLoader.ImportMesh(
 			"",
 			"./models/",
-			"forest2.glb",
+			"lowforest.glb",
 			this.scene,
 			(
 				newMeshes: any,
@@ -583,7 +583,7 @@ export class MainScene {
 
 				newMeshes[0].position = new Vector3(0, 0, 0);
 
-				// this.engine.hideLoadingUI();
+				this.engine.hideLoadingUI();
 
 				//this.scene.attachControl();
 			},
@@ -634,7 +634,7 @@ export class MainScene {
 
 		outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
 
-		SceneLoader.ImportMeshAsync(null, "./models/", "player2.glb").then(
+		SceneLoader.ImportMeshAsync(null, "./models/", "player1.glb").then(
 			(result: any) => {
 				this.hero = result.meshes[0];
 
@@ -726,13 +726,21 @@ export class MainScene {
 					}
 
 					//for visaul test button
+					console.log(
+						this.soundCount,
+						this.visualCount && this.Loaded,
+						!this.gamePaused,
+						this.visualTestCount,
+						!this.FrequencyPlay,
+					);
 					if (
 						this.soundCount == this.visualCount &&
 						this.Loaded &&
 						!this.gamePaused &&
 						this.visualTestCount == 0 &&
-						!this._frequencyPlay
+						!this.FrequencyPlay
 					) {
+						console.log("bibash");
 						this.visualTestCount++;
 
 						this._visualTest.isVisible = true;
@@ -742,7 +750,6 @@ export class MainScene {
 							setTimeout(() => {
 								this.jumpBtn.isEnabled = false;
 								this.soundCount = 0;
-								this.visualCount = Math.floor(Math.random() * (7 - 5 + 1) + 5);
 								if (!this._mobileJump) {
 									this.lossSound.play();
 									setTimeout(() => {
@@ -751,7 +758,9 @@ export class MainScene {
 										this.lossCount++;
 										this.count = 0;
 										this.score = this.score - 0.5;
-										this.FrequencyPlay = false;
+										this.visualCount = Math.floor(
+											Math.random() * (7 - 5 + 1) + 5,
+										);
 									}, 2000);
 								}
 							}, 3000);
@@ -912,32 +921,6 @@ export class MainScene {
 
 			//play transition sound
 		});
-
-		// const quitBtn = Button.CreateSimpleButton("quit", "QUIT");
-		// quitBtn.width = 0.18;
-		// quitBtn.height = "44px";
-		// quitBtn.color = "white";
-		// quitBtn.fontFamily = "Viga";
-		// quitBtn.paddingBottom = "12px";
-		// quitBtn.cornerRadius = 14;
-		// quitBtn.fontSize = "12px";
-		// resumeBtn.textBlock.resizeToFit = true;
-		// quitBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		// quitBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-		// stackPanel.addControl(quitBtn);
-
-		// quitBtn.onPointerDownObservable.add(() => {
-		// 	//open controls screen
-		// 	//this.scene.detachControl();
-
-		// 	this.scene.detachControl();
-		// 	this.gamePaused = true;
-		// 	this.Loaded = false;
-
-		// 	this.scene = this.CreateScene();
-
-		// 	//play transition sound
-		// });
 
 		//set up transition effect
 		Effect.RegisterShader(
@@ -1402,6 +1385,9 @@ export class MainScene {
 								this.verticalAxis = 1;
 								this.winGame = true;
 								if (this.visualTestCount == 1) {
+									this.visualCount = Math.floor(
+										Math.random() * (7 - 5 + 1) + 5,
+									);
 									this.visualTestCount = 0;
 								} else {
 									this.hearCount = this.hearCount + 1;
@@ -1466,7 +1452,7 @@ export class MainScene {
 	private _loadSounds(): void {
 		this.startSound = new Sound(
 			"pleasentsound",
-			"./sounds/background1.wav",
+			"./sounds/background.wp3",
 			this.scene,
 			function () {},
 			{
@@ -1478,7 +1464,7 @@ export class MainScene {
 
 		this.walkSound = new Sound(
 			"walk",
-			"./sounds/walk1.wav",
+			"./sounds/walk.mp3",
 			this.scene,
 			function () {},
 			{ volume: 0.3 },
