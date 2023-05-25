@@ -51,8 +51,8 @@ enum State {
 	CUTSCENE = 3,
 }
 export class MainScene {
-	scene: any;
-	engine: Engine;
+	private scene: any;
+	private engine: Engine;
 	public camera!: UniversalCamera;
 	//UI Elements
 	public pauseBtn!: Button;
@@ -221,6 +221,10 @@ export class MainScene {
 					break;
 			}
 		});
+
+		window.addEventListener("resize", () => {
+			this.engine.resize();
+		});
 	}
 
 	CreateScene(): Scene {
@@ -288,7 +292,7 @@ export class MainScene {
 
 		const pauseBtn = Button.CreateImageOnlyButton(
 			"pauseBtn",
-			"./sprites/pauseBtn.png",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/pauseBtn.png",
 		);
 		pauseBtn.width = "48px";
 		pauseBtn.height = "86px";
@@ -310,7 +314,7 @@ export class MainScene {
 
 			//when game is paused, make sure that the next start time is the time it was when paused
 			this.gamePaused = true;
-
+			this.startSound.pause();
 			//--SOUNDS--
 			// this._scene.getSoundByName('gameSong').pause()
 			// this._pause.play() //play pause music
@@ -320,7 +324,7 @@ export class MainScene {
 
 		const startBtn = Button.CreateImageOnlyButton(
 			"pauseBtn",
-			"./sprites/pauseBtn.png",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/pauseBtn.png",
 		);
 		startBtn.width = "48px";
 		startBtn.height = "86px";
@@ -335,12 +339,13 @@ export class MainScene {
 
 		startBtn.onPointerDownObservable.add(() => {
 			this.gamePaused = false;
-
 			startBtn.isVisible = false;
 			this.pauseBtn.isVisible = true;
 			playerUI.removeControl(startBtn);
 
 			this.scene.getSoundByName("pleasentsound").play();
+
+			this.engine.enterFullscreen(true);
 
 			//--SOUNDS--
 			// this._scene.getSoundByName('gameSong').pause()
@@ -350,8 +355,8 @@ export class MainScene {
 		// for visual test image display
 
 		const visulaTest = Button.CreateImageOnlyButton(
-			"pauseBtn",
-			"./sprites/abc.png",
+			"visualtest",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/abc.png",
 		);
 		visulaTest.width = "48px";
 		visulaTest.height = "86px";
@@ -384,13 +389,19 @@ export class MainScene {
 		actionGrid.addRowDefinition(0.5);
 		actionContainer.addControl(actionGrid);
 
-		const dashBtn = Button.CreateImageOnlyButton("dash", "./sprites/aBtn.png");
+		const dashBtn = Button.CreateImageOnlyButton(
+			"dash",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/aBtn.png",
+		);
 		dashBtn.thickness = 0;
 		dashBtn.alpha = 0.8;
 		dashBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
 		this.dashBtn = dashBtn;
 
-		const jumpBtn = Button.CreateImageOnlyButton("jump", "./sprites/bBtn.png");
+		const jumpBtn = Button.CreateImageOnlyButton(
+			"jump",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/bBtn.png",
+		);
 		jumpBtn.thickness = 0;
 		jumpBtn.alpha = 0.8;
 		jumpBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
@@ -423,7 +434,7 @@ export class MainScene {
 
 		const leftBtn = Button.CreateImageOnlyButton(
 			"left",
-			"./sprites/arrowBtn.png",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
 		);
 		leftBtn.thickness = 0;
 		leftBtn.rotation = -Math.PI / 2;
@@ -435,7 +446,7 @@ export class MainScene {
 
 		const rightBtn = Button.CreateImageOnlyButton(
 			"right",
-			"./sprites/arrowBtn.png",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
 		);
 		rightBtn.rotation = Math.PI / 2;
 		rightBtn.thickness = 0;
@@ -445,7 +456,10 @@ export class MainScene {
 		rightBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
 		this.rightBtn = rightBtn;
 
-		const upBtn = Button.CreateImageOnlyButton("up", "./sprites/arrowBtn.png");
+		const upBtn = Button.CreateImageOnlyButton(
+			"up",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
+		);
 		upBtn.thickness = 0;
 		upBtn.alpha = 0.8;
 		upBtn.color = "white";
@@ -453,7 +467,7 @@ export class MainScene {
 
 		const downBtn = Button.CreateImageOnlyButton(
 			"down",
-			"./sprites/arrowBtn.png",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
 		);
 		downBtn.thickness = 0;
 		downBtn.rotation = Math.PI;
@@ -524,7 +538,7 @@ export class MainScene {
 
 		SceneLoader.ImportMesh(
 			"",
-			"./models/",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/model/",
 			"object.glb",
 			this.scene,
 			(
@@ -542,7 +556,7 @@ export class MainScene {
 
 		SceneLoader.ImportMesh(
 			"",
-			"./models/",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/model/",
 			"lowforest04-v3.glb",
 			this.scene,
 			(
@@ -607,7 +621,7 @@ export class MainScene {
 		let weapen: any;
 		SceneLoader.ImportMesh(
 			"",
-			"./models/",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/model/",
 			"net01.glb",
 			this.scene,
 			(
@@ -649,165 +663,167 @@ export class MainScene {
 
 		outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
 
-		SceneLoader.ImportMeshAsync(null, "./models/", "player1.glb").then(
-			(result: any) => {
-				this.hero = result.meshes[0];
+		SceneLoader.ImportMeshAsync(
+			null,
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/model/",
+			"player1.glb",
+		).then((result: any) => {
+			this.hero = result.meshes[0];
 
-				let heroSkle: any = result.skeletons[0];
-				//body is our actual player mesh
+			let heroSkle: any = result.skeletons[0];
+			//body is our actual player mesh
 
-				const body = this.hero;
-				body.parent = outer;
-				body.isPickable = false;
-				body.getChildMeshes().forEach((m: any) => {
-					m.isPickable = false;
-				});
+			const body = this.hero;
+			body.parent = outer;
+			body.isPickable = false;
+			body.getChildMeshes().forEach((m: any) => {
+				m.isPickable = false;
+			});
 
-				this.hero.scaling.scaleInPlace(2);
+			this.hero.scaling.scaleInPlace(2);
 
-				this.hero.position = new Vector3(0, 0, 0);
+			this.hero.position = new Vector3(0, 0, 0);
 
-				heroSkle.position = new Vector3(0, 0, 0);
-				heroSkle.scaling = new Vector3(0.02, 0.02, 0.02);
+			heroSkle.position = new Vector3(0, 0, 0);
+			heroSkle.scaling = new Vector3(0.02, 0.02, 0.02);
 
-				weapen.scaling = new Vector3(7, 3, 3);
-				weapen.position = new Vector3(-20, -40, 0);
+			weapen.scaling = new Vector3(7, 3, 3);
+			weapen.position = new Vector3(-20, -40, 0);
 
-				weapen.attachToBone(heroSkle.bones[10], result.meshes[1]);
+			weapen.attachToBone(heroSkle.bones[10], result.meshes[1]);
 
-				this._run = result.animationGroups[4];
-				this._idle = result.animationGroups[0];
-				this._catch = result.animationGroups[1];
-				this._win = result.animationGroups[2];
-				this._loss = result.animationGroups[3];
+			this._run = result.animationGroups[4];
+			this._idle = result.animationGroups[0];
+			this._catch = result.animationGroups[1];
+			this._win = result.animationGroups[2];
+			this._loss = result.animationGroups[3];
 
-				this._run.loopAnimation = true;
-				this._idle.loopAnimation = true;
+			this._run.loopAnimation = true;
+			this._idle.loopAnimation = true;
 
-				//initialize current and previous
-				this._currentAnim = this._idle;
-				this._prevAnim = this._win;
+			//initialize current and previous
+			this._currentAnim = this._idle;
+			this._prevAnim = this._win;
 
-				this.mesh = outer as Mesh;
-				this.mesh.scaling = new Vector3(2, 2, 2);
+			this.mesh = outer as Mesh;
+			this.mesh.scaling = new Vector3(2, 2, 2);
 
-				this.mesh.actionManager = new ActionManager(this.scene);
-				this.activatePlayerCamera();
-				//this._updateGroundDetection();
+			this.mesh.actionManager = new ActionManager(this.scene);
+			this.activatePlayerCamera();
+			//this._updateGroundDetection();
 
-				this.camera.setTarget(this.mesh.position);
-				this.scene.onBeforeRenderObservable.add(() => {
-					// always keep the object at the gound
+			this.camera.setTarget(this.mesh.position);
+			this.scene.onBeforeRenderObservable.add(() => {
+				// always keep the object at the gound
 
-					if (this.Loaded) {
-						this.mesh.position.y = -0.1;
-					}
-					this.text = `Frequency = ${this.frequency} \n Speed = ${
-						(this.mobileUp ||
-							this.mobileDown ||
-							this.mobileLeft ||
-							this.mobileRight ||
-							this._mobileDash ||
-							this._mobileJump) &&
-						!this.gamePaused
-							? this.speed
-							: 0
-					} \n Ear = ${this.earType == -1 ? "Left" : "Right"} `;
+				if (this.Loaded) {
+					this.mesh.position.y = -0.1;
+				}
+				this.text = `Frequency = ${this.frequency} \n Speed = ${
+					(this.mobileUp ||
+						this.mobileDown ||
+						this.mobileLeft ||
+						this.mobileRight ||
+						this._mobileDash ||
+						this._mobileJump) &&
+					!this.gamePaused
+						? this.speed
+						: 0
+				} \n Ear = ${this.earType == -1 ? "Left" : "Right"} `;
 
-					this._textDisplay.text = this.text;
+				this._textDisplay.text = this.text;
 
-					this._scoreDisplay.text = `Score: ${this.score}`;
+				this._scoreDisplay.text = `Score: ${this.score}`;
 
-					if (this.Loaded) {
-						this._updateFromKeyboard();
-						this._animatePlayer();
-						this._updateFromControls();
-					}
+				if (this.Loaded) {
+					this._updateFromKeyboard();
+					this._animatePlayer();
+					this._updateFromControls();
+				}
 
-					if (
-						!this.gamePaused &&
-						!this.FrequencyPlay &&
-						this.Loaded &&
-						!this._mobileJump &&
-						this.soundCount != this.visualCount
-					) {
-						this.FrequencyPlay = true;
+				if (
+					!this.gamePaused &&
+					!this.FrequencyPlay &&
+					this.Loaded &&
+					!this._mobileJump &&
+					this.soundCount != this.visualCount
+				) {
+					this.FrequencyPlay = true;
+					setTimeout(() => {
+						if (!this.gamePaused) {
+							this._playFrequency();
+							this._frequencyPlay = true;
+						}
+					}, 8000);
+				}
+
+				//for visaul test button
+				// console.log(
+				// 	this.soundCount,
+				// 	this.visualCount && this.Loaded,
+				// 	!this.gamePaused,
+				// 	this.visualTestCount,
+				// 	!this.FrequencyPlay,
+				// );
+				if (
+					this.soundCount == this.visualCount &&
+					this.Loaded &&
+					!this.gamePaused &&
+					this.visualTestCount == 0 &&
+					!this.FrequencyPlay
+				) {
+					console.log("bibash");
+					this.visualTestCount++;
+
+					this._visualTest.isVisible = true;
+					this.jumpBtn.isEnabled = true;
+					setTimeout(() => {
+						this._visualTest.isVisible = false;
 						setTimeout(() => {
-							if (!this.gamePaused) {
-								this._playFrequency();
-								this._frequencyPlay = true;
-							}
-						}, 8000);
-					}
-
-					//for visaul test button
-					// console.log(
-					// 	this.soundCount,
-					// 	this.visualCount && this.Loaded,
-					// 	!this.gamePaused,
-					// 	this.visualTestCount,
-					// 	!this.FrequencyPlay,
-					// );
-					if (
-						this.soundCount == this.visualCount &&
-						this.Loaded &&
-						!this.gamePaused &&
-						this.visualTestCount == 0 &&
-						!this.FrequencyPlay
-					) {
-						console.log("bibash");
-						this.visualTestCount++;
-
-						this._visualTest.isVisible = true;
-						this.jumpBtn.isEnabled = true;
-						setTimeout(() => {
-							this._visualTest.isVisible = false;
-							setTimeout(() => {
-								this.jumpBtn.isEnabled = false;
-								this.soundCount = 0;
-								if (!this._mobileJump) {
-									this.lossSound.play();
-									setTimeout(() => {
-										this.lossSound.stop();
-										this.visualTestCount = 0;
-										this.lossCount++;
-										this.count = 0;
-										this.score = this.score - 0.5;
-										this.visualCount = Math.floor(
-											Math.random() * (7 - 5 + 1) + 5,
-										);
-									}, 2000);
-								}
-							}, 3000);
-						}, 1000);
-					}
-
-					//for hearing test
-					if (this._frequencyPlay) {
-						this.jumpBtn.isEnabled = true;
-						this._frequencyPlay = false;
-						setTimeout(() => {
-							this.soundCount++;
 							this.jumpBtn.isEnabled = false;
-							if (this._mobileJump) {
-								this.soundCount = 0;
-
-								this.frequencyhear = true;
-							} else {
+							this.soundCount = 0;
+							if (!this._mobileJump) {
 								this.lossSound.play();
 								setTimeout(() => {
 									this.lossSound.stop();
+									this.visualTestCount = 0;
 									this.lossCount++;
 									this.count = 0;
 									this.score = this.score - 0.5;
-									this.FrequencyPlay = false;
+									this.visualCount = Math.floor(
+										Math.random() * (7 - 5 + 1) + 5,
+									);
 								}, 2000);
 							}
 						}, 3000);
-					}
-				});
-			},
-		);
+					}, 1000);
+				}
+
+				//for hearing test
+				if (this._frequencyPlay) {
+					this.jumpBtn.isEnabled = true;
+					this._frequencyPlay = false;
+					setTimeout(() => {
+						this.soundCount++;
+						this.jumpBtn.isEnabled = false;
+						if (this._mobileJump) {
+							this.soundCount = 0;
+
+							this.frequencyhear = true;
+						} else {
+							this.lossSound.play();
+							setTimeout(() => {
+								this.lossSound.stop();
+								this.lossCount++;
+								this.count = 0;
+								this.score = this.score - 0.5;
+								this.FrequencyPlay = false;
+							}, 2000);
+						}
+					}, 3000);
+				}
+			});
+		});
 
 		return scene;
 	}
@@ -834,7 +850,10 @@ export class MainScene {
 		this._controls = controls;
 
 		//background image
-		const image1 = new Image("controls", "sprites/controls.jpeg");
+		const image1 = new Image(
+			"controls",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/controls.jpeg",
+		);
 		controls.addControl(image1);
 
 		const title = new TextBlock("title", "CONTROLS");
@@ -847,7 +866,7 @@ export class MainScene {
 
 		const backBtn = Button.CreateImageOnlyButton(
 			"back",
-			"./sprites/lanternbutton.jpeg",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/lanternbutton.jpeg",
 		);
 		backBtn.width = "40px";
 		backBtn.height = "40px";
@@ -876,7 +895,10 @@ export class MainScene {
 		pauseMenu.isVisible = false;
 
 		//background image
-		const image = new Image("pause", "sprites/pause.jpeg");
+		const image = new Image(
+			"pause",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/pause.jpeg",
+		);
 		pauseMenu.addControl(image);
 
 		//stack panel for the buttons
@@ -907,6 +929,8 @@ export class MainScene {
 
 			//game unpaused, our time is now reset
 			this.gamePaused = false;
+
+			this.startSound.play();
 			// this._startTime = new Date().getTime()
 
 			//--SOUNDS--
@@ -972,7 +996,10 @@ export class MainScene {
 		this._controls = controls;
 
 		//background image
-		const image = new Image("controls", "sprites/controls.jpeg");
+		const image = new Image(
+			"controls",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/controls.jpeg",
+		);
 		controls.addControl(image);
 
 		const title = new TextBlock("title", "CONTROLS");
@@ -985,7 +1012,7 @@ export class MainScene {
 
 		const backBtn = Button.CreateImageOnlyButton(
 			"back",
-			"./sprites/lanternbutton.jpeg",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/lanternbutton.jpeg",
 		);
 		backBtn.width = "40px";
 		backBtn.height = "40px";
@@ -1378,6 +1405,7 @@ export class MainScene {
 				this._prevAnim = this._currentAnim;
 				this._prevAnim.stop();
 				this._currentAnim = this._idle;
+				this.onRun.notifyObservers(false);
 				this._currentAnim.play(this._currentAnim.loopAnimation);
 				this._prevAnim = this._currentAnim;
 				this.object.position = this.displayPosition;
@@ -1385,7 +1413,7 @@ export class MainScene {
 				this.object.position.z = this.displayPosition.z - 5;
 				this.object.position.x = this.displayPosition.x + 2;
 				this.object.isVisible = true;
-				this.onRun.notifyObservers(false);
+
 				setTimeout(() => {
 					this._mobileDash = true;
 
@@ -1467,7 +1495,7 @@ export class MainScene {
 	private _loadSounds(): void {
 		this.startSound = new Sound(
 			"pleasentsound",
-			"./sounds/background.mp3",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sounds/background.mp3",
 			this.scene,
 			function () {},
 			{
@@ -1479,7 +1507,7 @@ export class MainScene {
 
 		this.walkSound = new Sound(
 			"walk",
-			"./sounds/walk.mp3",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sounds/walk.mp3",
 			this.scene,
 			function () {},
 			{ volume: 0.3 },
@@ -1487,7 +1515,7 @@ export class MainScene {
 
 		this.winSound = new Sound(
 			"win",
-			"./sounds/win1.mp3",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sounds/win1.mp3",
 			this.scene,
 			function () {},
 			{ volume: 0.3 },
@@ -1495,7 +1523,7 @@ export class MainScene {
 
 		this.lossSound = new Sound(
 			"loss",
-			"./sounds/loss1.mp3",
+			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sounds/loss1.mp3",
 			this.scene,
 			function () {},
 			{
