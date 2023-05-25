@@ -73,7 +73,7 @@ export class MainScene {
 
 	//for the visual test
 	public soundCount: number = 0;
-	public visualCount: number = 2; // Math.floor(Math.random() * (7 - 5 + 1) + 5); //generate the output according to number
+	public visualCount: number = Math.floor(Math.random() * (7 - 5 + 1) + 5); //generate the output according to number
 	public visualTestCount: number = 0;
 
 	// Math.floor(Math.random() * (7 - 5 + 1) + 5)
@@ -263,7 +263,7 @@ export class MainScene {
 		displayText.color = "white";
 		//displayText.text = `${this.text}`;
 		displayText.top = "32px";
-		//displayText.left = "-64px";
+		displayText.left = "50px";
 		displayText.width = "25%";
 		displayText.fontFamily = "Viga";
 		displayText.resizeToFit = true;
@@ -279,7 +279,7 @@ export class MainScene {
 		scoreText.color = "white";
 		scoreText.text = `${this.score}`;
 		scoreText.top = "32px";
-		scoreText.left = "-64px";
+		scoreText.left = "-80px";
 		scoreText.width = "25%";
 		scoreText.fontFamily = "Viga";
 		scoreText.resizeToFit = true;
@@ -296,6 +296,7 @@ export class MainScene {
 		pauseBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
 		pauseBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
 		pauseBtn.top = "-16px";
+		pauseBtn.left = "-30px";
 		playerUI.addControl(pauseBtn);
 		pauseBtn.zIndex = 10;
 		this.pauseBtn = pauseBtn;
@@ -542,7 +543,7 @@ export class MainScene {
 		SceneLoader.ImportMesh(
 			"",
 			"./models/",
-			"lowforest.glb",
+			"lowforest04-v3.glb",
 			this.scene,
 			(
 				newMeshes: any,
@@ -570,15 +571,29 @@ export class MainScene {
 							mesh.checkCollisions = true;
 							mesh.isVisible = false;
 						}
+
+						// if (mesh.name == "objectdisplay") {
+						// 	this.mesh.position = mesh.position;
+
+						// 	this.mesh.position.y = -0.1;
+						// }
 					});
 				});
 
 				if (this.Loaded) {
-					this.mesh.position = this.scene
-						.getTransformNodeByName("startposition")
+					// this.mesh.position = this.scene
+					// 	.getTransformNodeByName("startposition")
+					// 	.getAbsolutePosition();
+
+					// this.mesh.position.y = -0.1;
+
+					let position = this.scene
+						.getTransformNodeByName("objectdisplay")
 						.getAbsolutePosition();
 
 					this.mesh.position.y = -0.1;
+					this.mesh.position.x = position.x - 100;
+					this.mesh.position.z = position.z - 100;
 				}
 
 				newMeshes[0].position = new Vector3(0, 0, 0);
@@ -726,13 +741,13 @@ export class MainScene {
 					}
 
 					//for visaul test button
-					console.log(
-						this.soundCount,
-						this.visualCount && this.Loaded,
-						!this.gamePaused,
-						this.visualTestCount,
-						!this.FrequencyPlay,
-					);
+					// console.log(
+					// 	this.soundCount,
+					// 	this.visualCount && this.Loaded,
+					// 	!this.gamePaused,
+					// 	this.visualTestCount,
+					// 	!this.FrequencyPlay,
+					// );
 					if (
 						this.soundCount == this.visualCount &&
 						this.Loaded &&
@@ -1452,7 +1467,7 @@ export class MainScene {
 	private _loadSounds(): void {
 		this.startSound = new Sound(
 			"pleasentsound",
-			"./sounds/background.wp3",
+			"./sounds/background.mp3",
 			this.scene,
 			function () {},
 			{
