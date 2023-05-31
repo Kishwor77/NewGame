@@ -90,12 +90,21 @@ export class MainScene {
 	public lastIndex: number = 0;
 
 	public _weapen: any;
+	public _weapen1: any;
+	public _weapen2: any;
+	public _heroSkle!: any;
 
 	//display text
 	public text: any = "";
 	public score: number = 10;
 	public _textDisplay!: any;
 	public _scoreDisplay!: any;
+
+	//display 123
+
+	public _textDisplay1!: any;
+	public _textDisplay2!: any;
+	public _textDisplay3!: any;
 
 	public _camRoot!: any;
 	private _yTilt!: TransformNode;
@@ -107,6 +116,7 @@ export class MainScene {
 
 	public FrequencyPlay: boolean = false;
 	public _frequencyPlay: boolean = false;
+	public _soundControl: boolean = false;
 
 	//Mobile
 
@@ -201,7 +211,19 @@ export class MainScene {
 
 		// Set up Mobile Controls if on mobile device
 
-		this._setUpMobile();
+		//this._setUpMobile();
+
+		this.inputMap = {};
+		this.scene.actionManager.registerAction(
+			new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
+				this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+			}),
+		);
+		this.scene.actionManager.registerAction(
+			new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
+				this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+			}),
+		);
 
 		this.engine.runRenderLoop(() => {
 			switch (this._state) {
@@ -345,7 +367,7 @@ export class MainScene {
 
 			this.scene.getSoundByName("pleasentsound").play();
 
-			this.engine.enterFullscreen(true);
+			//this.engine.enterFullscreen(true);
 
 			//--SOUNDS--
 			// this._scene.getSoundByName('gameSong').pause()
@@ -368,6 +390,56 @@ export class MainScene {
 		visulaTest.zIndex = 5;
 		this._visualTest = visulaTest;
 		this._visualTest.isVisible = false;
+
+		// display text while catching the object
+
+		const displayText1 = new TextBlock();
+		displayText1.name = "1";
+
+		displayText1.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+		displayText1.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+		displayText1.top = "-20px";
+		displayText1.fontSize = "40px";
+		displayText1.color = "white";
+		displayText1.text = "1";
+		displayText1.width = "25%";
+		displayText1.fontFamily = "Viga";
+		displayText1.resizeToFit = true;
+		playerUI.addControl(displayText1);
+		this._textDisplay1 = displayText1;
+		this._textDisplay1.isVisible = false;
+
+		const displayText2 = new TextBlock();
+		displayText2.name = "2";
+
+		displayText2.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+		displayText2.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+		displayText2.top = "-20px";
+		displayText2.fontSize = "40px";
+		displayText2.color = "white";
+		displayText2.text = "2";
+		displayText2.width = "25%";
+		displayText2.fontFamily = "Viga";
+		displayText2.resizeToFit = true;
+		playerUI.addControl(displayText2);
+		this._textDisplay2 = displayText2;
+		this._textDisplay2.isVisible = false;
+
+		const displayText3 = new TextBlock();
+		displayText3.name = "3";
+
+		displayText3.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+		displayText3.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+		displayText3.top = "-20px";
+		displayText3.fontSize = "40px";
+		displayText3.color = "white";
+		displayText3.text = "3";
+		displayText3.width = "25%";
+		displayText3.fontFamily = "Viga";
+		displayText3.resizeToFit = true;
+		playerUI.addControl(displayText3);
+		this._textDisplay3 = displayText3;
+		this._textDisplay3.isVisible = false;
 
 		//--ACTION BUTTONS--
 		// container for action buttons (right side of screen)
@@ -432,54 +504,54 @@ export class MainScene {
 		grid.addRowDefinition(0.5);
 		moveContainer.addControl(grid);
 
-		const leftBtn = Button.CreateImageOnlyButton(
-			"left",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		);
-		leftBtn.thickness = 0;
-		leftBtn.rotation = -Math.PI / 2;
-		leftBtn.color = "white";
-		leftBtn.alpha = 0.8;
-		leftBtn.width = 0.8;
-		leftBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		this.leftBtn = leftBtn;
+		// const leftBtn = Button.CreateImageOnlyButton(
+		// 	"left",
+		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
+		// );
+		// leftBtn.thickness = 0;
+		// leftBtn.rotation = -Math.PI / 2;
+		// leftBtn.color = "white";
+		// leftBtn.alpha = 0.8;
+		// leftBtn.width = 0.8;
+		// leftBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+		// this.leftBtn = leftBtn;
 
-		const rightBtn = Button.CreateImageOnlyButton(
-			"right",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		);
-		rightBtn.rotation = Math.PI / 2;
-		rightBtn.thickness = 0;
-		rightBtn.color = "white";
-		rightBtn.alpha = 0.8;
-		rightBtn.width = 0.8;
-		rightBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-		this.rightBtn = rightBtn;
+		// const rightBtn = Button.CreateImageOnlyButton(
+		// 	"right",
+		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
+		// );
+		// rightBtn.rotation = Math.PI / 2;
+		// rightBtn.thickness = 0;
+		// rightBtn.color = "white";
+		// rightBtn.alpha = 0.8;
+		// rightBtn.width = 0.8;
+		// rightBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+		// this.rightBtn = rightBtn;
 
-		const upBtn = Button.CreateImageOnlyButton(
-			"up",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		);
-		upBtn.thickness = 0;
-		upBtn.alpha = 0.8;
-		upBtn.color = "white";
-		this.upBtn = upBtn;
+		// const upBtn = Button.CreateImageOnlyButton(
+		// 	"up",
+		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
+		// );
+		// upBtn.thickness = 0;
+		// upBtn.alpha = 0.8;
+		// upBtn.color = "white";
+		// this.upBtn = upBtn;
 
-		const downBtn = Button.CreateImageOnlyButton(
-			"down",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		);
-		downBtn.thickness = 0;
-		downBtn.rotation = Math.PI;
-		downBtn.color = "white";
-		downBtn.alpha = 0.8;
-		this.downBtn = downBtn;
+		// const downBtn = Button.CreateImageOnlyButton(
+		// 	"down",
+		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
+		// );
+		// downBtn.thickness = 0;
+		// downBtn.rotation = Math.PI;
+		// downBtn.color = "white";
+		// downBtn.alpha = 0.8;
+		// this.downBtn = downBtn;
 
 		//arrange the buttons in the grid
-		grid.addControl(leftBtn, 1, 0);
-		grid.addControl(rightBtn, 1, 2);
-		grid.addControl(upBtn, 0, 1);
-		grid.addControl(downBtn, 1, 1);
+		// grid.addControl(leftBtn, 1, 0);
+		// grid.addControl(rightBtn, 1, 2);
+		// grid.addControl(upBtn, 0, 1);
+		// grid.addControl(downBtn, 1, 1);
 
 		scene.collisionsEnabled = true;
 
@@ -557,7 +629,7 @@ export class MainScene {
 		SceneLoader.ImportMesh(
 			"",
 			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/model/",
-			"lowforest04-v3.glb",
+			"newlowforest.glb",
 			this.scene,
 			(
 				newMeshes: any,
@@ -605,9 +677,9 @@ export class MainScene {
 						.getTransformNodeByName("objectdisplay")
 						.getAbsolutePosition();
 
-					this.mesh.position.y = -0.1;
-					this.mesh.position.x = position.x - 100;
-					this.mesh.position.z = position.z - 100;
+					this.mesh.position.y = -0.19;
+					this.mesh.position.x = position.x - 10;
+					this.mesh.position.z = position.z - 10;
 				}
 
 				newMeshes[0].position = new Vector3(0, 0, 0);
@@ -643,6 +715,8 @@ export class MainScene {
 				});
 
 				this._weapen = weapen;
+				this._weapen1 = newMeshes[1];
+				this._weapen2 = newMeshes[2];
 			},
 		);
 
@@ -671,6 +745,8 @@ export class MainScene {
 			this.hero = result.meshes[0];
 
 			let heroSkle: any = result.skeletons[0];
+
+			this._heroSkle = heroSkle;
 			//body is our actual player mesh
 
 			const body = this.hero;
@@ -737,6 +813,7 @@ export class MainScene {
 
 				if (this.Loaded) {
 					this._updateFromKeyboard();
+
 					this._animatePlayer();
 					this._updateFromControls();
 				}
@@ -753,18 +830,35 @@ export class MainScene {
 						if (!this.gamePaused) {
 							this._playFrequency();
 							this._frequencyPlay = true;
+							this._soundControl = true;
 						}
 					}, 8000);
 				}
 
-				//for visaul test button
-				// console.log(
-				// 	this.soundCount,
-				// 	this.visualCount && this.Loaded,
-				// 	!this.gamePaused,
-				// 	this.visualTestCount,
-				// 	!this.FrequencyPlay,
-				// );
+				//for hearing test
+				if (this._frequencyPlay) {
+					this._frequencyPlay = false;
+					setTimeout(() => {
+						this.soundCount++;
+						this.jumpBtn.isEnabled = false;
+						if (this._mobileJump) {
+							this.frequencyhear = true;
+						} else {
+							this._soundControl = false;
+							this.lossSound.play();
+							this.lossGame = true;
+							setTimeout(() => {
+								this.lossSound.stop();
+								this.lossGame = false;
+								this.lossCount++;
+								this.count = 0;
+								this.score = this.score - 0.5;
+								this.FrequencyPlay = false;
+							}, 2000);
+						}
+					}, 3000);
+				}
+
 				if (
 					this.soundCount == this.visualCount &&
 					this.Loaded &&
@@ -772,19 +866,20 @@ export class MainScene {
 					this.visualTestCount == 0 &&
 					!this.FrequencyPlay
 				) {
-					console.log("bibash");
 					this.visualTestCount++;
-
 					this._visualTest.isVisible = true;
-					this.jumpBtn.isEnabled = true;
+					this._soundControl = true;
 					setTimeout(() => {
 						this._visualTest.isVisible = false;
 						setTimeout(() => {
 							this.jumpBtn.isEnabled = false;
-							this.soundCount = 0;
 							if (!this._mobileJump) {
 								this.lossSound.play();
+								this.lossGame = true;
+								this._soundControl = false;
 								setTimeout(() => {
+									this.lossGame = true;
+									this.soundCount = 0;
 									this.lossSound.stop();
 									this.visualTestCount = 0;
 									this.lossCount++;
@@ -797,30 +892,6 @@ export class MainScene {
 							}
 						}, 3000);
 					}, 1000);
-				}
-
-				//for hearing test
-				if (this._frequencyPlay) {
-					this.jumpBtn.isEnabled = true;
-					this._frequencyPlay = false;
-					setTimeout(() => {
-						this.soundCount++;
-						this.jumpBtn.isEnabled = false;
-						if (this._mobileJump) {
-							this.soundCount = 0;
-
-							this.frequencyhear = true;
-						} else {
-							this.lossSound.play();
-							setTimeout(() => {
-								this.lossSound.stop();
-								this.lossCount++;
-								this.count = 0;
-								this.score = this.score - 0.5;
-								this.FrequencyPlay = false;
-							}, 2000);
-						}
-					}, 3000);
 				}
 			});
 		});
@@ -1087,11 +1158,14 @@ export class MainScene {
 	private _updateFromKeyboard(): void {
 		//forward - backwards movement
 		//
-		if (this.mobileUp && !this.gamePaused) {
+		if ((this.inputMap["ArrowUp"] || this.inputMap["w"]) && !this.gamePaused) {
 			this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
 
 			this.verticalAxis = 1;
-		} else if (this.mobileDown && !this.gamePaused) {
+		} else if (
+			(this.inputMap["ArrowDown"] || this.inputMap["s"]) &&
+			!this.gamePaused
+		) {
 			this.vertical = Scalar.Lerp(this.vertical, -1, 0.2);
 			this.verticalAxis = -1;
 		} else {
@@ -1100,12 +1174,18 @@ export class MainScene {
 		}
 
 		//left - right movement
-		if (this.mobileLeft && !this.gamePaused) {
+		if (
+			(this.inputMap["ArrowLeft"] || this.inputMap["a"]) &&
+			!this.gamePaused
+		) {
 			//lerp will create a scalar linearly interpolated amt between start and end scalar
 			//taking current horizontal and how long you hold, will go up to -1(all the way left)
 			this.horizontal = Scalar.Lerp(this.horizontal, -1, 0.2);
 			this.horizontalAxis = -1;
-		} else if (this.mobileRight && !this.gamePaused) {
+		} else if (
+			(this.inputMap["ArrowRight"] || this.inputMap["d"]) &&
+			!this.gamePaused
+		) {
 			this.horizontal = Scalar.Lerp(this.horizontal, 1, 0.2);
 			this.horizontalAxis = 1;
 		} else {
@@ -1113,7 +1193,7 @@ export class MainScene {
 			this.horizontalAxis = 0;
 		}
 
-		if (this._mobileJump && !this.gamePaused) {
+		if (this.inputMap[" "] && !this.gamePaused) {
 			if (this.nCount1 == 1) {
 				this.nCount1++;
 				this.position.push(
@@ -1178,56 +1258,56 @@ export class MainScene {
 	}
 
 	// Mobile controls
-	private _setUpMobile(): void {
-		//Jump Button
+	// private _setUpMobile(): void {
+	// 	//Jump Button
 
-		// no need
-		this.jumpBtn.onPointerDownObservable.add(() => {
-			this._mobileJump = true;
-			this.jumpBtn.isEnabled = false;
-		});
-		// this.jumpBtn.onPointerUpObservable.add(() => {
-		// 	this._mobileJump = false;
-		// });
+	// 	// no need
+	// 	this.jumpBtn.onPointerDownObservable.add(() => {
+	// 		this._mobileJump = true;
+	// 		this.jumpBtn.isEnabled = false;
+	// 	});F
+	// 	// this.jumpBtn.onPointerUpObservable.add(() => {
+	// 	// 	this._mobileJump = false;
+	// 	// });
 
-		//no need
-		//Dash Button
-		this.dashBtn.onPointerDownObservable.add(() => {
-			this._mobileDash = true;
-		});
-		this.dashBtn.onPointerUpObservable.add(() => {
-			this._mobileDash = false;
-		});
+	// 	//no need
+	// 	//Dash Button
+	// 	this.dashBtn.onPointerDownObservable.add(() => {
+	// 		this._mobileDash = true;
+	// 	});
+	// 	this.dashBtn.onPointerUpObservable.add(() => {
+	// 		this._mobileDash = false;
+	// 	});
 
-		//Arrow Keys
-		this.leftBtn.onPointerDownObservable.add(() => {
-			this.mobileLeft = true;
-		});
-		this.leftBtn.onPointerUpObservable.add(() => {
-			this.mobileLeft = false;
-		});
+	// 	//Arrow Keys
+	// 	this.leftBtn.onPointerDownObservable.add(() => {
+	// 		this.mobileLeft = true;
+	// 	});
+	// 	this.leftBtn.onPointerUpObservable.add(() => {
+	// 		this.mobileLeft = false;
+	// 	});
 
-		this.rightBtn.onPointerDownObservable.add(() => {
-			this.mobileRight = true;
-		});
-		this.rightBtn.onPointerUpObservable.add(() => {
-			this.mobileRight = false;
-		});
+	// 	this.rightBtn.onPointerDownObservable.add(() => {
+	// 		this.mobileRight = true;
+	// 	});
+	// 	this.rightBtn.onPointerUpObservable.add(() => {
+	// 		this.mobileRight = false;
+	// 	});
 
-		this.upBtn.onPointerDownObservable.add(() => {
-			this.mobileUp = true;
-		});
-		this.upBtn.onPointerUpObservable.add(() => {
-			this.mobileUp = false;
-		});
+	// 	this.upBtn.onPointerDownObservable.add(() => {
+	// 		this.mobileUp = true;
+	// 	});
+	// 	this.upBtn.onPointerUpObservable.add(() => {
+	// 		this.mobileUp = false;
+	// 	});
 
-		this.downBtn.onPointerDownObservable.add(() => {
-			this.mobileDown = true;
-		});
-		this.downBtn.onPointerUpObservable.add(() => {
-			this.mobileDown = false;
-		});
-	}
+	// 	this.downBtn.onPointerDownObservable.add(() => {
+	// 		this.mobileDown = true;
+	// 	});
+	// 	this.downBtn.onPointerUpObservable.add(() => {
+	// 		this.mobileDown = false;
+	// 	});
+	// }
 
 	private _updateFromControls(): void {
 		this._deltaTime = this.scene.getEngine().getDeltaTime() / 1000.0;
@@ -1297,17 +1377,30 @@ export class MainScene {
 		//this.scene.stopAllAnimations();
 
 		if (
-			(this.mobileUp ||
+			(this.inputMap["w"] ||
+				this.inputMap["a"] ||
+				this.inputMap["s"] ||
+				this.inputMap["d"] ||
+				this.inputMap["ArrowUp"] ||
+				this.mobileUp ||
+				this.inputMap["ArrowDown"] ||
 				this.mobileDown ||
+				this.inputMap["ArrowLeft"] ||
 				this.mobileLeft ||
-				this.mobileRight) &&
+				this.inputMap["ArrowRight"]) &&
 			!this.gamePaused
 		) {
 			this._currentAnim = this._run;
 
 			this.onRun.notifyObservers(true);
-		} else if (this._mobileDash && !this.gamePaused) {
+		} else if (
+			(this.inputMap["Shift"] || this._mobileDash) &&
+			!this.gamePaused
+		) {
 			this._currentAnim = this._catch;
+
+			// this.object.position.x = this._heroSkle.bones[10].position.x - 10;
+			// this.object.position.z = this._heroSkle.bones[10].position.z - 10;
 
 			//this.onRun.notifyObservers(t);
 		} else if (this.lossGame && !this.gamePaused) {
@@ -1340,8 +1433,10 @@ export class MainScene {
 				!this.mobileRight ||
 				!this._mobileDash) &&
 			!this.gamePaused &&
-			this._mobileJump
+			(this._mobileJump || this.inputMap[" "]) &&
+			this._soundControl
 		) {
+			this._mobileJump = true;
 			this._currentAnim = this._run;
 			this.onRun.notifyObservers(true);
 			this._currentAnim.play(this._currentAnim.loopAnimation);
@@ -1397,8 +1492,8 @@ export class MainScene {
 					this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
 					this.verticalAxis = 1;
 				}
+				this._soundControl = false;
 
-				this.jumpBtn.isEnabled = false;
 				this._hCount = 0;
 				this._vCount = 0;
 				this._mobileJump = false;
@@ -1415,37 +1510,52 @@ export class MainScene {
 				this.object.isVisible = true;
 
 				setTimeout(() => {
-					this._mobileDash = true;
-
+					this._textDisplay1.isVisible = true;
+					console.log(
+						this._heroSkle.bones[10].position.z,
+						this._heroSkle.bones[10].position.x,
+					);
 					setTimeout(() => {
-						this.object.position = this._weapen.position;
+						this._textDisplay1.isVisible = false;
+						this._textDisplay2.isVisible = true;
 
+						this.object.position.z = this._heroSkle.bones[10].position.z - 5;
+						this.object.position.x = this._heroSkle.bones[10].position.x + 2;
 						setTimeout(() => {
-							this._mobileDash = false;
-							this.object.isVisible = false;
+							this._textDisplay2.isVisible = false;
+							this._textDisplay3.isVisible = true;
+
 							setTimeout(() => {
-								this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
-								this.verticalAxis = 1;
-								this.winGame = true;
-								if (this.visualTestCount == 1) {
-									this.visualCount = Math.floor(
-										Math.random() * (7 - 5 + 1) + 5,
-									);
-									this.visualTestCount = 0;
-								} else {
-									this.hearCount = this.hearCount + 1;
-								}
-								this.winSound.play();
+								this._mobileDash = true;
+								this._textDisplay3.isVisible = false;
 								setTimeout(() => {
-									this.winSound.stop();
-									this.winGame = false;
-									this.score = this.score + 1;
-									this.count = 0;
-									this.FrequencyPlay = false;
-								}, 2000);
-							}, 700);
-						}, 300);
-					}, 100);
+									this._mobileDash = false;
+
+									this.object.isVisible = false;
+									this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
+									this.verticalAxis = 1;
+									this.winGame = true;
+									if (this.visualTestCount == 1) {
+										this.visualCount = Math.floor(
+											Math.random() * (7 - 5 + 1) + 5,
+										);
+										this.visualTestCount = 0;
+										this.soundCount = 0;
+									} else {
+										this.hearCount = this.hearCount + 1;
+									}
+									this.winSound.play();
+									setTimeout(() => {
+										this.winSound.stop();
+										this.winGame = false;
+										this.score = this.score + 1;
+										this.count = 0;
+										this.FrequencyPlay = false;
+									}, 2000);
+								}, 700);
+							}, 1000);
+						}, 1000);
+					}, 1000);
 				}, 2000);
 			}
 		}
