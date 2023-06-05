@@ -89,6 +89,8 @@ export class MainScene {
 
 	public lastIndex: number = 0;
 
+	public trunUp: boolean = false;
+
 	public _weapen: any;
 	public _weapen1: any;
 	public _weapen2: any;
@@ -156,8 +158,8 @@ export class MainScene {
 	public mobileDown!: boolean;
 	private _mobileJump: boolean = false; //no need
 	private _mobileDash!: boolean; //no need
-	private winGame!: boolean;
-	private lossGame!: boolean;
+	private winGame: boolean = false;
+	private lossGame: boolean = false;
 
 	public displayPosition: any;
 
@@ -443,115 +445,6 @@ export class MainScene {
 
 		//--ACTION BUTTONS--
 		// container for action buttons (right side of screen)
-		const actionContainer = new Rectangle();
-		actionContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-		actionContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-		actionContainer.height = 0.4;
-		actionContainer.width = 0.2;
-		actionContainer.left = "-2%";
-		actionContainer.top = "-2%";
-		actionContainer.thickness = 0;
-		playerUI.addControl(actionContainer);
-
-		//grid for action button placement
-		const actionGrid = new Grid();
-		actionGrid.addColumnDefinition(0.5);
-		actionGrid.addColumnDefinition(0.5);
-		actionGrid.addRowDefinition(0.5);
-		actionGrid.addRowDefinition(0.5);
-		actionContainer.addControl(actionGrid);
-
-		const dashBtn = Button.CreateImageOnlyButton(
-			"dash",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/aBtn.png",
-		);
-		dashBtn.thickness = 0;
-		dashBtn.alpha = 0.8;
-		dashBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-		this.dashBtn = dashBtn;
-
-		const jumpBtn = Button.CreateImageOnlyButton(
-			"jump",
-			"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/bBtn.png",
-		);
-		jumpBtn.thickness = 0;
-		jumpBtn.alpha = 0.8;
-		jumpBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		jumpBtn.isEnabled = false;
-		this.jumpBtn = jumpBtn;
-
-		actionGrid.addControl(dashBtn, 0, 1);
-		actionGrid.addControl(jumpBtn, 1, 0);
-
-		//--MOVEMENT BUTTONS--
-		// container for movement buttons (section left side of screen)
-		const moveContainer = new Rectangle();
-		moveContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		moveContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-		moveContainer.height = 0.4;
-		moveContainer.width = 0.4;
-		moveContainer.left = "2%";
-		moveContainer.top = "-2%";
-		moveContainer.thickness = 0;
-		playerUI.addControl(moveContainer);
-
-		//grid for placement of arrow keys
-		const grid = new Grid();
-		grid.addColumnDefinition(0.4);
-		grid.addColumnDefinition(0.4);
-		grid.addColumnDefinition(0.4);
-		grid.addRowDefinition(0.5);
-		grid.addRowDefinition(0.5);
-		moveContainer.addControl(grid);
-
-		// const leftBtn = Button.CreateImageOnlyButton(
-		// 	"left",
-		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		// );
-		// leftBtn.thickness = 0;
-		// leftBtn.rotation = -Math.PI / 2;
-		// leftBtn.color = "white";
-		// leftBtn.alpha = 0.8;
-		// leftBtn.width = 0.8;
-		// leftBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-		// this.leftBtn = leftBtn;
-
-		// const rightBtn = Button.CreateImageOnlyButton(
-		// 	"right",
-		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		// );
-		// rightBtn.rotation = Math.PI / 2;
-		// rightBtn.thickness = 0;
-		// rightBtn.color = "white";
-		// rightBtn.alpha = 0.8;
-		// rightBtn.width = 0.8;
-		// rightBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-		// this.rightBtn = rightBtn;
-
-		// const upBtn = Button.CreateImageOnlyButton(
-		// 	"up",
-		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		// );
-		// upBtn.thickness = 0;
-		// upBtn.alpha = 0.8;
-		// upBtn.color = "white";
-		// this.upBtn = upBtn;
-
-		// const downBtn = Button.CreateImageOnlyButton(
-		// 	"down",
-		// 	"https://pacecode.sgp1.cdn.digitaloceanspaces.com/sprites/arrowBtn.png",
-		// );
-		// downBtn.thickness = 0;
-		// downBtn.rotation = Math.PI;
-		// downBtn.color = "white";
-		// downBtn.alpha = 0.8;
-		// this.downBtn = downBtn;
-
-		//arrange the buttons in the grid
-		// grid.addControl(leftBtn, 1, 0);
-		// grid.addControl(rightBtn, 1, 2);
-		// grid.addControl(upBtn, 0, 1);
-		// grid.addControl(downBtn, 1, 1);
 
 		scene.collisionsEnabled = true;
 
@@ -620,7 +513,7 @@ export class MainScene {
 				animationGroups: any,
 			) => {
 				this.object = newMeshes[0];
-
+				this.object.setEnabled(false);
 				this.object.scaling = new Vector3(0.8, 0.8, 0.8);
 				this.object.rotation = new Vector3(Math.PI / 2, 0, 0);
 			},
@@ -796,10 +689,17 @@ export class MainScene {
 					this.mesh.position.y = -0.1;
 				}
 				this.text = `Frequency = ${this.frequency} \n Speed = ${
-					(this.mobileUp ||
+					(this.inputMap["a"] ||
+						this.inputMap["s"] ||
+						this.inputMap["d"] ||
+						this.inputMap["ArrowUp"] ||
+						this.mobileUp ||
+						this.inputMap["ArrowDown"] ||
 						this.mobileDown ||
+						this.inputMap["ArrowLeft"] ||
 						this.mobileLeft ||
-						this.mobileRight ||
+						this.inputMap["ArrowRight"] ||
+						this.inputMap["Shift"] ||
 						this._mobileDash ||
 						this._mobileJump) &&
 					!this.gamePaused
@@ -839,8 +739,6 @@ export class MainScene {
 				if (this._frequencyPlay) {
 					this._frequencyPlay = false;
 					setTimeout(() => {
-						this.soundCount++;
-						this.jumpBtn.isEnabled = false;
 						if (this._mobileJump) {
 							this.frequencyhear = true;
 						} else {
@@ -854,6 +752,7 @@ export class MainScene {
 								this.count = 0;
 								this.score = this.score - 0.5;
 								this.FrequencyPlay = false;
+								this.soundCount++;
 							}, 2000);
 						}
 					}, 3000);
@@ -869,18 +768,19 @@ export class MainScene {
 					this.visualTestCount++;
 					this._visualTest.isVisible = true;
 					this._soundControl = true;
+
 					setTimeout(() => {
-						this._visualTest.isVisible = false;
-						setTimeout(() => {
-							this.jumpBtn.isEnabled = false;
-							if (!this._mobileJump) {
-								this.lossSound.play();
+						if (!this._mobileJump) {
+							this._visualTest.isVisible = false;
+							this.lossSound.play();
+							this.lossGame = true;
+							this._soundControl = false;
+							setTimeout(() => {
 								this.lossGame = true;
-								this._soundControl = false;
 								setTimeout(() => {
-									this.lossGame = true;
-									this.soundCount = 0;
 									this.lossSound.stop();
+									this.soundCount = 0;
+									this.lossGame = false;
 									this.visualTestCount = 0;
 									this.lossCount++;
 									this.count = 0;
@@ -888,10 +788,12 @@ export class MainScene {
 									this.visualCount = Math.floor(
 										Math.random() * (7 - 5 + 1) + 5,
 									);
-								}, 2000);
-							}
-						}, 3000);
-					}, 1000);
+								}, 1000);
+							}, 1000);
+						} else {
+							this._visualTest.isVisible = false;
+						}
+					}, 3000);
 				}
 			});
 		});
@@ -1158,13 +1060,22 @@ export class MainScene {
 	private _updateFromKeyboard(): void {
 		//forward - backwards movement
 		//
-		if ((this.inputMap["ArrowUp"] || this.inputMap["w"]) && !this.gamePaused) {
+		if (
+			(this.inputMap["ArrowUp"] || this.inputMap["w"] || this.trunUp) &&
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
+		) {
 			this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
 
 			this.verticalAxis = 1;
 		} else if (
 			(this.inputMap["ArrowDown"] || this.inputMap["s"]) &&
-			!this.gamePaused
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
 		) {
 			this.vertical = Scalar.Lerp(this.vertical, -1, 0.2);
 			this.verticalAxis = -1;
@@ -1174,17 +1085,25 @@ export class MainScene {
 		}
 
 		//left - right movement
+
 		if (
 			(this.inputMap["ArrowLeft"] || this.inputMap["a"]) &&
-			!this.gamePaused
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
 		) {
 			//lerp will create a scalar linearly interpolated amt between start and end scalar
 			//taking current horizontal and how long you hold, will go up to -1(all the way left)
+
 			this.horizontal = Scalar.Lerp(this.horizontal, -1, 0.2);
 			this.horizontalAxis = -1;
 		} else if (
 			(this.inputMap["ArrowRight"] || this.inputMap["d"]) &&
-			!this.gamePaused
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
 		) {
 			this.horizontal = Scalar.Lerp(this.horizontal, 1, 0.2);
 			this.horizontalAxis = 1;
@@ -1193,7 +1112,13 @@ export class MainScene {
 			this.horizontalAxis = 0;
 		}
 
-		if (this.inputMap[" "] && !this.gamePaused) {
+		if (
+			this.inputMap[" "] &&
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
+		) {
 			if (this.nCount1 == 1) {
 				this.nCount1++;
 				this.position.push(
@@ -1388,14 +1313,20 @@ export class MainScene {
 				this.inputMap["ArrowLeft"] ||
 				this.mobileLeft ||
 				this.inputMap["ArrowRight"]) &&
-			!this.gamePaused
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
 		) {
 			this._currentAnim = this._run;
 
 			this.onRun.notifyObservers(true);
 		} else if (
 			(this.inputMap["Shift"] || this._mobileDash) &&
-			!this.gamePaused
+			!this.gamePaused &&
+			!this._mobileJump &&
+			!this.lossGame &&
+			!this.winGame
 		) {
 			this._currentAnim = this._catch;
 
@@ -1438,7 +1369,6 @@ export class MainScene {
 		) {
 			this._mobileJump = true;
 			this._currentAnim = this._run;
-			this.onRun.notifyObservers(true);
 			this._currentAnim.play(this._currentAnim.loopAnimation);
 			this.vertical = 0;
 			this.verticalAxis = 0;
@@ -1464,14 +1394,14 @@ export class MainScene {
 			) {
 				if (
 					Math.round(this.displayPosition.z) <
-					Math.round(this.mesh.position.z) + 10
+					Math.round(this.mesh.position.z) + 15
 				) {
 					this._hCount++;
 					this.vertical = Scalar.Lerp(this.vertical, -1, 0.2);
 					this.verticalAxis = -1;
 				} else if (
 					Math.round(this.displayPosition.z) >
-					Math.round(this.mesh.position.z) + 10
+					Math.round(this.mesh.position.z) + 15
 				) {
 					this._vCount++;
 					this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
@@ -1484,66 +1414,55 @@ export class MainScene {
 				Math.round(this.displayPosition.x) ==
 					Math.round(this.mesh.position.x) &&
 				Math.round(this.displayPosition.z) ==
-					Math.round(this.mesh.position.z) + 10
+					Math.round(this.mesh.position.z) + 15
 			) {
-				if (this._hCount > 0 && this.RotateCount < 2) {
-					this.RotateCount++;
-
-					this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
-					this.verticalAxis = 1;
-				}
 				this._soundControl = false;
 
 				this._hCount = 0;
 				this._vCount = 0;
 				this._mobileJump = false;
+				this.trunUp = true;
+				setTimeout(() => {
+					this.trunUp = false;
+				}, 350);
+
 				this._prevAnim = this._currentAnim;
 				this._prevAnim.stop();
 				this._currentAnim = this._idle;
-				this.onRun.notifyObservers(false);
+
 				this._currentAnim.play(this._currentAnim.loopAnimation);
 				this._prevAnim = this._currentAnim;
 				this.object.position = this.displayPosition;
 				this.object.position.y = 5;
 				this.object.position.z = this.displayPosition.z - 5;
 				this.object.position.x = this.displayPosition.x + 2;
-				this.object.isVisible = true;
+				this.object.setEnabled(true);
 
 				setTimeout(() => {
+					this.trunUp = false;
 					this._textDisplay1.isVisible = true;
-					console.log(
-						this._heroSkle.bones[10].position.z,
-						this._heroSkle.bones[10].position.x,
-					);
 					setTimeout(() => {
 						this._textDisplay1.isVisible = false;
 						this._textDisplay2.isVisible = true;
 
-						this.object.position.z = this._heroSkle.bones[10].position.z - 5;
-						this.object.position.x = this._heroSkle.bones[10].position.x + 2;
 						setTimeout(() => {
 							this._textDisplay2.isVisible = false;
 							this._textDisplay3.isVisible = true;
 
 							setTimeout(() => {
-								this._mobileDash = true;
 								this._textDisplay3.isVisible = false;
+								this._mobileDash = true;
+
 								setTimeout(() => {
+									this.object.position.z = this.mesh.position.z;
+									this.object.position.x = this.mesh.position.x;
+									this.object.position.y = 2;
 									this._mobileDash = false;
 
-									this.object.isVisible = false;
-									this.vertical = Scalar.Lerp(this.vertical, 1, 0.2);
-									this.verticalAxis = 1;
+									this.object.setEnabled(false);
+
 									this.winGame = true;
-									if (this.visualTestCount == 1) {
-										this.visualCount = Math.floor(
-											Math.random() * (7 - 5 + 1) + 5,
-										);
-										this.visualTestCount = 0;
-										this.soundCount = 0;
-									} else {
-										this.hearCount = this.hearCount + 1;
-									}
+
 									this.winSound.play();
 									setTimeout(() => {
 										this.winSound.stop();
@@ -1551,12 +1470,22 @@ export class MainScene {
 										this.score = this.score + 1;
 										this.count = 0;
 										this.FrequencyPlay = false;
+										if (this.visualTestCount == 1) {
+											this.visualCount = Math.floor(
+												Math.random() * (7 - 5 + 1) + 5,
+											);
+											this.visualTestCount = 0;
+											this.soundCount = 0;
+										} else {
+											this.soundCount++;
+											this.hearCount = this.hearCount + 1;
+										}
 									}, 2000);
-								}, 700);
+								}, 1000);
 							}, 1000);
 						}, 1000);
 					}, 1000);
-				}, 2000);
+				}, 1000);
 			}
 		}
 	}
