@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'vue-router'
 
 declare module 'vue-router' {

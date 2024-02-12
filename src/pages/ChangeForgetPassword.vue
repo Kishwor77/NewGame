@@ -117,7 +117,8 @@ export default defineComponent({
 					this.errorMsg = result;
 				} else if (result.data.statusCode === 200) {
 					this.successMsg = "Email is send Successfully";
-					this.$router.push("/login");
+					window.history.pushState(null, '/login')
+					// this.$router.push("/login");
 				}
 			} else {
 				this.errorMsg = "Password did not match";

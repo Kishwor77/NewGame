@@ -76,6 +76,7 @@ export class MainScene {
 	public hero!: any;
 	public object!: any;
 	public RotateCount: number = 0;
+	public newFrequency: number = 0;
 
 	//for the visual test
 	public soundCount: number = 0;
@@ -105,6 +106,7 @@ export class MainScene {
 	//display text
 	public text: any = "";
 	public score: number = 10;
+	public impImage: string = '';
 	public _textDisplay!: any;
 	public _scoreDisplay!: any;
 
@@ -209,12 +211,27 @@ export class MainScene {
 
 	public onRun = new Observable();
 	constructor(private canvas: HTMLCanvasElement) {
+
 		this.engine = new Engine(this.canvas, true);
+		
+		this.randomImp().then((responseData) => {
 
+			const imp = responseData.data.data;
+
+			console.log(imp)
+		this.impImage = `${process.env.VUE_APP_BACKEND_IMAGE_URL}/${imp.image}`;
+		});
+		this.randomImp()
+		this.datacalled().then((responseData) => { 
+
+		this.userGame = responseData.data.data;
+	
+		this.frequency = this.userGame.frequency;
+		this.volumeControl = this.userGame.soundLevel;
+		this.speed = this.userGame.speed;
+		this.earType = this.userGame.earSide === "left" ? -1 : 1;
+		this.score = this.userGame.coin;
 		this.scene = this.CreateScene();
-
-		this.datacalled();
-
 		this.scene.enablePhysics(
 			new Vector3(0, -9.81, 0),
 			new CannonJSPlugin(true, 10, CANNON),
@@ -259,23 +276,70 @@ export class MainScene {
 		window.addEventListener("resize", () => {
 			this.engine.resize();
 		});
+		})
+		this.datacalled();
+		
+		
 	}
 
+	// call the random data
+	async randomImp() {
+		const data = await axios.get('settings/list-imp');
+		return data;
+	}
+
+
+	// get the response from user data
 	async datacalled() {
 		const data = await axios.get("game/user", {
 			headers: {
 				Authorization: "Bearer " + localStorage.getItem("token"),
 			},
 		});
-
-		this.userGame = data.data.data;
-		console.log("bibash0097", this.userGame);
-		this.frequency = this.userGame.frequency;
-		this.volumeControl = this.userGame.soundLevel;
-		this.speed = this.userGame.speed;
-		this.earType = this.userGame.earSide === "left" ? -1 : 1;
+		
+		return data;
 	}
 
+
+	// update the user game status in the record
+	async updateUserGame(frequency: number, volume: number, earside: string, coin: number) {
+		axios.put(
+				"game/user/update",
+				{
+					frequency: frequency,
+					soundLevel: volume,
+					earside: earside,
+					coin,
+				},
+				{
+					headers: {
+						Authorization: "Bearer " + localStorage.getItem("token"),
+					},
+				},
+			);
+	}
+
+	// update the sound testing frequency
+	async addSoundTesting(frequency: number, volume: number, isHeard: boolean, earside: string) {
+		await axios.post(
+			"sound-test/add",
+			{
+				frequency: frequency,
+				soundLevel: volume,
+				isHeard,
+				earSide: earside,
+			},
+			{
+				headers: {
+					Authorization:
+						"Bearer " + localStorage.getItem("token"),
+				},
+			},
+		);
+	}
+
+
+	// create the scene for the game
 	CreateScene(): Scene {
 		const scene = new Scene(this.engine);
 
@@ -402,10 +466,9 @@ export class MainScene {
 		});
 
 		// for visual test image display
-
 		const visulaTest = Button.CreateImageOnlyButton(
 			"visualtest",
-			"sprites/abc.png",
+			this.impImage, //bibash image
 		);
 		visulaTest.width = "48px";
 		visulaTest.height = "86px";
@@ -776,36 +839,9 @@ export class MainScene {
 									this.FrequencyPlay = false;
 									this.soundCount++;
 									this.volumeControl = this.volumeControl + 0.15;
-									await axios.put(
-										"http://localhost:5001/game/user/update",
-										{
-											frequency: this.frequency,
-											soundLevel: this.volumeControl,
-											speed: this.speed,
-											earSide: this.earType === -1 ? "left" : "right",
-										},
-										{
-											headers: {
-												Authorization:
-													"Bearer " + localStorage.getItem("token"),
-											},
-										},
-									);
-									await axios.post(
-										"http://localhost:5001/sound-test/add",
-										{
-											frequency: this.frequency,
-											soundLevel: this.volumeControl - 0.15,
-											isHeard: false,
-											earSide: this.earType === -1 ? "left" : "right",
-										},
-										{
-											headers: {
-												Authorization:
-													"Bearer " + localStorage.getItem("token"),
-											},
-										},
-									);
+									const earSide = this.earType === -1 ? "left" : "right";
+									this.updateUserGame(this.frequency, this.volumeControl, earSide, this.score);
+									this.addSoundTesting(this.frequency, this.volumeControl - 0.15, false, earSide)
 								}, 2000);
 							}
 						}, 3000);
@@ -854,6 +890,8 @@ export class MainScene {
 
 		return scene;
 	}
+
+	// manage the camera of the player
 	public activatePlayerCamera(): UniversalCamera {
 		this.scene.registerBeforeRender(() => {
 			this._updateCamera();
@@ -862,6 +900,7 @@ export class MainScene {
 		return this.camera;
 	}
 
+	// pause the game
 	private _createPauseMenu(): void {
 		//this.gamePaused = false;
 
@@ -1004,6 +1043,8 @@ export class MainScene {
 		// 	//--SOUNDS--
 		// });
 	}
+
+	// controll menue of the game
 	private _createControlsMenu(): void {
 		const controls = new Rectangle();
 		controls.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -1049,8 +1090,8 @@ export class MainScene {
 		});
 	}
 
+	// frequency controll
 	private _playFrequency(): void {
-		console.log("Start-test");
 		if (this.lossCount > 0) {
 			//console.log({ data });
 		}
@@ -1058,80 +1099,28 @@ export class MainScene {
 		if (this.frequencyhear && this.hearCount == 1) {
 			this.lossCount = 0;
 			this.frequencyhear = false;
+			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 1000;
-			console.log("test");
-			axios.put(
-				"game/user/update",
-				{
-					frequency: this.frequency,
-					soundLevel: this.volumeControl,
-					speed: this.speed,
-					earside: this.earType === -1 ? "left" : "right",
-				},
-				{
-					headers: {
-						Authorization: "Bearer " + localStorage.getItem("token"),
-					},
-				},
-			);
+			
+
 		}
 		if (this.frequencyhear && this.hearCount == 2) {
 			this.lossCount = 0;
 			this.frequencyhear = false;
+			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 2000;
-			axios.put(
-				"game/user/update",
-				{
-					frequency: this.frequency,
-					soundLevel: this.volumeControl,
-					speed: this.speed,
-					earside: this.earType === -1 ? "left" : "right",
-				},
-				{
-					headers: {
-						Authorization: "Bearer " + localStorage.getItem("token"),
-					},
-				},
-			);
 		}
 		if (this.frequencyhear && this.hearCount == 3) {
 			this.lossCount = 0;
 			this.frequencyhear = false;
+			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 4000;
-			axios.put(
-				"game/user/update",
-				{
-					frequency: this.frequency,
-					soundLevel: this.volumeControl,
-					speed: this.speed,
-					earside: this.earType === -1 ? "left" : "right",
-				},
-				{
-					headers: {
-						Authorization: "Bearer " + localStorage.getItem("token"),
-					},
-				},
-			);
 		}
 
 		if (this.frequency == 4000 && this.hearCount == 4) {
-			this.frequency = 500;
 			this.hearCount = 0;
+			this.frequency = 500;
 			this.earType = this.earType == -1 ? 1 : -1;
-			axios.put(
-				"game/user/update",
-				{
-					frequency: this.frequency,
-					soundLevel: this.volumeControl,
-					speed: this.speed,
-					earside: this.earType === -1 ? "left" : "right",
-				},
-				{
-					headers: {
-						Authorization: "Bearer " + localStorage.getItem("token"),
-					},
-				},
-			);
 		}
 		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 		const oscillator = audioCtx.createOscillator();
@@ -1160,6 +1149,8 @@ export class MainScene {
 		}, 1000);
 	}
 
+
+	//  keyboard controll
 	private _updateFromKeyboard(): void {
 		//forward - backwards movement
 		//
@@ -1337,6 +1328,8 @@ export class MainScene {
 	// 	});
 	// }
 
+
+	// update the players
 	private _updateFromControls(): void {
 		this._deltaTime = this.scene.getEngine().getDeltaTime() / 1000.0;
 
@@ -1401,6 +1394,8 @@ export class MainScene {
 		this.mesh.moveWithCollisions(this._moveDirection);
 	}
 
+
+	// make player walk and do activities
 	private _animatePlayer(): void {
 		//this.scene.stopAllAnimations();
 
@@ -1565,21 +1560,25 @@ export class MainScene {
 									this.object.setEnabled(false);
 
 									this.winGame = true;
-									await axios.post(
-										"http://localhost:5001/sound-test/add",
-										{
-											frequency: this.frequency,
-											soundLevel: this.volumeControl,
-											isHeard: true,
-											earside: this.earType === -1 ? "left" : "right",
-										},
-										{
-											headers: {
-												Authorization:
-													"Bearer " + localStorage.getItem("token"),
-											},
-										},
-									);
+									let earside = this.earType === -1 ? "left" : "right";
+									this.addSoundTesting(this.frequency, this.volumeControl, true, earside);
+								
+									if (this.frequency == 500) {
+										this.newFrequency = 1000;
+									}
+									if (this.frequency == 1000) {
+										this.newFrequency = 2000;
+									}
+									if (this.frequency == 2000) {
+										this.newFrequency = 5000;
+									}
+									if (this.frequency == 5000) {
+										this.newFrequency = 500;
+									}
+									console.log("new freqnecy", this.newFrequency);
+									earside = this.frequency == 5000 ? this.earType === -1 ? "right" : "left" : earside;
+									
+									this.updateUserGame(this.newFrequency, 0.2, earside, this.score)
 
 									this.winSound.play();
 									setTimeout(() => {
@@ -1598,6 +1597,7 @@ export class MainScene {
 											this.soundCount++;
 											this.hearCount = this.hearCount + 1;
 										}
+										this.datacalled();
 									}, 2000);
 								}, 1000);
 							}, 1000);
@@ -1608,6 +1608,7 @@ export class MainScene {
 		}
 	}
 
+	// update the camera accordingly
 	private _updateCamera(): void {
 		//trigger areas for rotating camera view
 
@@ -1620,6 +1621,8 @@ export class MainScene {
 		);
 	}
 
+
+	// setup the player camera
 	private _setupPlayerCamera(): UniversalCamera {
 		//root camera parent that handles positioning of the camera to follow the player
 		this._camRoot = new TransformNode("root");
@@ -1649,6 +1652,8 @@ export class MainScene {
 		return this.camera;
 	}
 
+
+	// load the sound for the game
 	private _loadSounds(): void {
 		this.startSound = new Sound(
 			"pleasentsound",

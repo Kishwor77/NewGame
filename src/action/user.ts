@@ -3,7 +3,6 @@ import axios from "axios";
 export const userList = async () => {
 	try {
 		const result = await axios.get("user/all");
-		console.log(result);
 		return result;
 	} catch (error: any) {
 		return error.response
@@ -18,7 +17,6 @@ export const getUserDetails = async (id: number) => {
 	try {
 		console.log({ id });
 		const result = await axios.get(`user/details/${id}`);
-		console.log(result);
 		return result;
 	} catch (error: any) {
 		return error.response
@@ -44,6 +42,23 @@ export const updateUserConfig = async (
 			earSide,
 		});
 		console.log(result);
+		return result;
+	} catch (error: any) {
+		return error.response
+			? error.response.data.message
+			: error.message
+			? error.message
+			: error;
+	}
+};
+
+export const userGame = async () => {
+	try {
+		const result = await axios.get('game/user', {
+			headers: {
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+		});
 		return result;
 	} catch (error: any) {
 		return error.response

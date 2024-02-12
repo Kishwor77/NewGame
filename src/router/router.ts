@@ -15,19 +15,13 @@ import ConfirmRegistration from "@/pages/ConfirmRegistration.vue";
 
 // for admin
 import Admin from "@/admins/admin.vue";
-import User from "@/admins/userList.vue";
 import AdminLogin from "@/admins/login.vue";
-import PrivacyPolicy from "@/admins/settings/PrivacyPolicy.vue";
-import TermsCondition from "@/admins/settings/TermsCondition.vue";
 import {
 	HomeIcon,
 	UserIcon,
-	PhotoIcon,
-	ChatBubbleLeftRightIcon,
+	AdjustmentsIcon,
 	DocumentTextIcon,
 } from "@heroicons/vue/outline";
-
-import { ChevronDownIcon, CreditCardIcon } from "@heroicons/vue/solid";
 
 const routes = [
 	{
@@ -89,25 +83,28 @@ const routes = [
 		name: "GuidePage",
 		component: GuidePage,
 		path: "/guide",
-		meta: {
-			icon: DocumentTextIcon,
-		},
 	},
 	{
 		name: "MainPage",
 		component: MainPage,
 		path: "/main",
+	},
+	{
+		name: "Dashboard",
+		component: Admin,
+		path: "/admin",
+		title: "admin",
 		meta: {
-			icon: DocumentTextIcon,
+			icon: HomeIcon,
 		},
 	},
 	{
 		name: "Users",
 		component: Admin,
 		path: "/admin/users",
-		title: "admin",
+		title: "users",
 		meta: {
-			icon: DocumentTextIcon,
+			icon: UserIcon,
 		},
 	},
 	{
@@ -117,18 +114,18 @@ const routes = [
 		title: "admin",
 	},
 	{
-		name: "Dashboard",
+		name: "Settings",
 		component: Admin,
-		path: "/admin",
-		title: "admin",
+		path: "/settings",
+		title: "settings",
 		meta: {
-			icon: DocumentTextIcon,
+			icon: AdjustmentsIcon,
 		},
 
 		children: [
 			{
 				name: "Privacy&Policy",
-				path: "/settings/privacy&policy",
+				path: "privacy&policy",
 				component: Admin,
 				meta: {
 					title: "privacy&policy",

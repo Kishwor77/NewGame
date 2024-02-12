@@ -3,32 +3,51 @@
 		<NavBar class="item1" :user="user"> </NavBar>
 
 		<main
-		class ='border-4 border-red-400'
+		class =''
 			:style="{
 				backgroundImage: 'url(' + image + ')',
 				backgroundSize: 'cover',
 			}"
 		>
 			<div class="container m-auto flex flex-start h-full">
-				<div class="flex w-full flex-col border-4 border-stone-400">
-						<div class=" flex w-full justify-center flex-wrap  text-white border-4 border-red-400">
+				
+				<div class="flex w-full flex-col ">
+					<div class="flex justify-end pr-10 text-amber-500 text-2xl mt-2 items-center">
+						{{ coin }}{{ ' ' }} <font-awesome-icon icon="fa-solid fa-star"  style="color: #efd634;" />
+					</div>
+						<div class=" flex w-full justify-center flex-wrap  text-white ">
 						<div class="album-img"
 							v-for="imp in imps"
 							:key="imp.id"
 						>
                         <div v-if="!imp.isUnlocked?.includes(id)" class="lock"> 
-                            <div class="flex flex-col justify-center h-full items-center">
+                            <div class="flex flex-col justify-center h-full items-center ">
                                 
-                                   
-                                    <div>
-                                     {{ imp.starRequired }} {{ '  ' }}<font-awesome-icon icon="fa-solid fa-star" beat style="color: #efd634;" />
-                                    </div>
+								<div
+									class="h-10 shadow flex justify-center items-center text-red-800 bg-transparent"
+									v-if="errorMsg !== '' && clickId == imp.id"
+								>
+								{{ errorMsg }}
+								</div>
+								<div>
+									{{ imp.starRequired }} {{ '  ' }}<font-awesome-icon icon="fa-solid fa-star" beat style="color: #efd634;" />
+								</div>
+							
+								<div>
+									<button class="unlock-btn" @click="unlockImp(imp.id)">
+									Unlock
+									</button>
+								</div>
                                 
-                                   <div>
-                                     <button class="unlock-btn">
-                                        Unlock
-                                     </button>
-                                   </div>
+                            </div>
+                        </div> 
+						<div v-if="imp.isUnlocked?.includes(id) && usedImp !== imp.image" class="use"> 
+                            <div class="flex flex-col justify-center h-full items-center ">
+								<div>
+									<button class="use-btn" @click="useImp(imp.id)" >
+									Select
+									</button>
+								</div>
                                 
                             </div>
                         </div> 
@@ -50,7 +69,8 @@ import { defineComponent } from "vue";
 
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/footer.vue";
-import { impList } from "@/action/imp.action";
+import { impList, unlockImp, useImp } from "@/action/imp.action";
+import{ userGame } from  "@/action/user";
 
 export default defineComponent({
 	name: "GamePage",
@@ -71,21 +91,52 @@ export default defineComponent({
                     starRequired: ''
 				}
             ],
-            id: ''
+			id: '',
+			errorMsg: '',
+			clickId: '',
+			usedImp: '',
+			coin: ''
 		};
 	},
 	methods: {
 		async impList() {
 			const imp = await impList();
-			console.log("imp data",imp.data?.data);
 			this.imps = imp.data?.data;
             this.id = this.user?.id;
             console.log(this.id)
 		},
+		async unlockImp(id: string) {
+			this.clickId = id;
+			const result = await unlockImp(id);
+
+			if (result.data == undefined) {
+				this.errorMsg = result;
+			} else if (result.data.statusCode === 200) {
+				window.location.reload();
+			}
+		},
+		async useImp(id: string) {
+			this.clickId = id;
+			const result = await useImp(id);
+
+			if (result.data == undefined) {
+				this.errorMsg = result;
+			} else if (result.data.statusCode === 200) {
+				window.location.reload();
+			}
+		},
+		async userGame() {
+			const result = await userGame();
+			console.log("result", { result });
+			this.usedImp = result.data?.data?.impUse;
+			this.coin = result.data?.data?.coin;
+
+			
+		}
 	},
 	mounted() {
-        this.impList();
-        console.log(this.user);
+		this.impList();
+		this.userGame();
 	},
 });
 </script>
@@ -116,6 +167,12 @@ main {
     position: absolute;
     opacity: 0.95;
 }
+.use{
+    width: 15rem;
+    height: 10rem;
+    position: absolute;
+    opacity: 0.95;
+}
 .album-img{
     padding:2rem;
 }
@@ -125,6 +182,11 @@ main {
 }
 .unlock-btn{
     background-color: goldenrod;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 1rem;
+}
+.use-btn{
+	background-color: green;
     padding: 0.5rem 1rem 0.5rem 1rem;
     border-radius: 1rem;
 }

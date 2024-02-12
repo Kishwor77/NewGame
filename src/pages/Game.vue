@@ -3,24 +3,21 @@
 		<NavBar class="item1" :user="user"> </NavBar>
 
 		<main
-		class ='border-4 border-red-400'
+		class =''
 			:style="{
 				backgroundImage: 'url(' + image + ')',
 				backgroundSize: 'cover',
 			}"
 		>
 			<div class="container m-auto flex flex-start h-full">
-				<div class="flex w-full flex-col border-4 border-stone-400">
+				<div class="flex w-full flex-col ">
 					<a href="/album">
-						<div class=" flex  w-full justify-end text-white border-4 border-red-400">
+						<div class=" flex  w-full justify-end text-white ">
 						<div class="img-items"
 							v-for="imp in imps"
 							:key="imp.id"
 						>
 							<img class="imp-image" :alt='imp.name' :src="`http://localhost:5001/imp/${imp.image}`" />
-							{{imp.name}}
-								
-							
 						</div>
 					</div>
 					</a>

@@ -6,11 +6,11 @@
 				<li
 					:class="`${
 						page == item?.title
-							? 'bg-gray-300 p-2 ml-6 hover:bg-gray-300'
+							? 'bg-gray-300 p-2 ml-6 hover:bg-gray-300 rounded-l-md'
 							: 'p-2 ml-6 hover:bg-gray-300'
 					}`"
 				>
-					<a :href="item.path" class="flex">
+					<a v-if= "item.title !== 'settings' " :href="item.path" class="flex">
 						<div>
 							<component
 								:is="item.meta.icon"
@@ -20,35 +20,42 @@
 						</div>
 						<div>{{ item?.name }}</div>
 					</a>
-				</li>
-			</ul>
-		</div>
-		<div class="flex-col">
-			<div class="p-2 ml-4 cursor-pointer hover:bg-gray-300" @click="hideShow">
-				Settings
-			</div>
-			<div v-if="isOpen">
-				<ul class="list-none" v-for="(item, index) in sidebar" :key="index">
-					<li
-						:class="`${
-							page == item?.meta.title
-								? 'bg-gray-300 p-2 ml-6 hover:bg-gray-300'
-								: 'p-2 ml-6 hover:bg-gray-300'
-						}`"
-					>
-						<a :href="item.path" class="flex">
-							<div>
+					<div v-if="item.title == 'settings' "  @click="hideShow">
+							<div class="flex">
+								<div>
 								<component
-									:is="item.meta.icon"
-									:class="` w-5 mx-auto`"
-									aria-hidden="true"
-								/>
+								:is="item.meta.icon"
+								:class="` w-5 mx-auto`"
+								aria-hidden="true"
+							/>
 							</div>
 							<div>{{ item?.name }}</div>
-						</a>
-					</li>
-				</ul>
-			</div>
+							</div>
+							<div v-if="isOpen">
+								<ul class="list-none" v-for="(item, index) in sidebar" :key="index">
+									<li
+										:class="`${
+											page == item?.meta.title
+												? 'bg-gray-300 p-2 ml-4 hover:bg-gray-300 '
+												: 'p-2 ml-6 hover:bg-gray-300'
+										}`"
+									>
+										<a :href="item.path" class="flex">
+											<div>
+												<component
+													:is="item.meta.icon"
+													:class="` w-5 mx-auto`"
+													aria-hidden="true"
+												/>
+											</div>
+											<div>{{ item?.name }}</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+					</div>
+				</li>
+			</ul>
 		</div>
 	</div>
 </template>
@@ -80,7 +87,7 @@ export default defineComponent({
 		this.menu = routers;
 
 		this.menu.filter((a: any) => {
-			if (a.name == "Dashboard") {
+			if (a.name == "Settings") {
 				this.sidebar = a.children;
 			}
 		});

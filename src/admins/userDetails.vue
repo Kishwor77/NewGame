@@ -164,10 +164,10 @@
 					<div>Right Ear</div>
 				</div>
 			</div>
-			<div class="flex flex-col">
+			<div class="flex flex-col h-20">
 				<div class="font-bold">
 					<h2>Graph</h2>
-					<BarChart></BarChart>
+					<!-- <BarChart></BarChart> -->
 				</div>
 			</div>
 		</div>
@@ -188,7 +188,7 @@ export default defineComponent({
 	name: "UserList",
 	props: ["user"],
 	components: {
-		BarChart
+		// BarChart
 	},
 
 	setup(props) {

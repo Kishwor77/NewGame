@@ -112,11 +112,9 @@
 import { defineComponent } from "vue";
 
 import NavBar from "../components/NavBar.vue";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import Footer from "../components/footer.vue";
-
 import { signup } from "@/action/auth";
-export default defineComponent({
+export default defineComponent ({
 	name: "SignUp",
 	components: {
 		NavBar,
@@ -132,15 +130,16 @@ export default defineComponent({
 	},
 	methods: {
 		async signupHandaler() {
-			const reuslt: any = await signup(this.name, this.email, this.password);
-			if (reuslt?.response?.data.statusCode == 400) {
+			const reuslt = await signup(this.name, this.email, this.password);
+			if (reuslt?.response?.data.statusCode === 400) {
 				console.log("bibash");
 				this.errorMsg = reuslt?.response?.data.message;
 			} else if (reuslt?.response?.data.statusCode == 500) {
 				this.errorMsg = reuslt?.response?.data.message;
 			}
-			if (reuslt?.response?.data.statusCode == 200) {
-				this.$router.push("/login");
+			if (reuslt?.response?.data.statusCode === 200) {
+				window.history.pushState(null, '/login');
+				// window.history.push("/login");
 			}
 		},
 	},

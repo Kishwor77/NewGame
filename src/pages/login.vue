@@ -129,8 +129,8 @@ export default defineComponent({
 				this.errorMsg = result;
 			} else if (result.data.statusCode === 200) {
 				localStorage.setItem("token", result.data.token);
-				console.log(result);
-				this.$router.push("/");
+				window.history.pushState(null, '/')
+				// this.$router.push("/");
 			}
 		},
 	},

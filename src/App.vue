@@ -6,7 +6,6 @@
 import { defineComponent } from "vue";
 
 import { getUser } from "./action/auth";
-import currentUserSubject from "./utils/auth";
 
 export default defineComponent({
 	name: "App",
