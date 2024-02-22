@@ -9,12 +9,13 @@ const router: Router = createRouter({
 router.beforeEach((to, from, next) => {
 	// const store = useStore();
 	// store.dashboard.setIsSBOpen(false);
+
+	console.log(to)
 	const currentUser =
 		JSON.parse(localStorage?.getItem("currentUser") || "{}") || null;
 	console.log("000", currentUser);
 	if (currentUser?.role && to.path == "/login") {
-		if (currentUser?.fullName == "admin") {
-			console.log("nibah");
+		if (currentUser?.role == "admin") {
 			return next({ path: "/admin" });
 		} else {
 			return next({ name: "HomePage" });
@@ -27,16 +28,19 @@ router.beforeEach((to, from, next) => {
 		} else if (currentUser?.role == "admin" && to.path == "/login") {
 			return next({ path: "admin" });
 		}
-	} else if (currentUser?.role == "admin" && to.path !== "/admin") {
-		return next({ path: "/admin" });
-	} else {
+	}
+	// else if (currentUser?.role == "admin" && to.path !== "/admin") {
+	// 	console.log("bibash test")
+	// 	return next({ path: "/admin" });
+	// }
+	else {
 		if (to.matched.some((record) => record.meta.auth)) {
 			console.log("000", currentUser);
 			if (!currentUser) {
-				next({ name: "Login" });
+				next({ path: "/login" });
 			} else {
 				console.log("bibash");
-				next({ name: "HomePage" });
+				next({ path: "/" });
 			}
 
 			next();

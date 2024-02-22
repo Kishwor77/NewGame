@@ -167,7 +167,10 @@
 			<div class="flex flex-col h-20">
 				<div class="font-bold">
 					<h2>Graph</h2>
-					<!-- <BarChart></BarChart> -->
+
+					<div class="h-40">
+						<BarChart/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -176,6 +179,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import BarChart from "./BarChart.vue";
+
 import { getUserDetails, updateUserConfig } from "@/action/user";
 import { toInteger } from "lodash";
 const defaultForm = {
@@ -188,7 +192,7 @@ export default defineComponent({
 	name: "UserList",
 	props: ["user"],
 	components: {
-		// BarChart
+	BarChart	
 	},
 
 	setup(props) {
