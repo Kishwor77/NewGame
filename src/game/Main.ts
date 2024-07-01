@@ -55,7 +55,7 @@ enum State {
 export class MainScene {
 	// called differentapi
 
-	//data = axios.get("user/account").then((res) => console.log("happy", res));
+
 
 	private scene: any;
 	private engine: Engine;
@@ -66,6 +66,7 @@ export class MainScene {
 	private _playerUI: any;
 	private _pauseMenu: any;
 	private _controls!: any;
+	private cameraView: string = "normal"
 	// public tutorial;
 
 	public mesh!: any;
@@ -77,10 +78,12 @@ export class MainScene {
 	public object!: any;
 	public RotateCount: number = 0;
 	public newFrequency: number = 0;
+	public hearingTest: boolean = true
+	public visualTest: boolean= false
 
 	//for the visual test
 	public soundCount: number = 0;
-	public visualCount: number = Math.floor(Math.random() * (7 - 5 + 1) + 5); //generate the output according to number
+	public visualCount: number =  Math.floor(Math.random() * (5 - 3 + 1) + 3);
 	public visualTestCount: number = 0;
 
 	// Math.floor(Math.random() * (7 - 5 + 1) + 5)
@@ -192,6 +195,7 @@ export class MainScene {
 	public winSound!: Sound;
 	public walkSound!: Sound;
 	public startSound!: Sound;
+	public userID: number = 0;
 
 	private static readonly PLAYER_SPEED: number = 0.45;
 
@@ -216,9 +220,10 @@ export class MainScene {
 		
 		this.randomImp().then((responseData) => {
 
+			console.log({responseData})
 			const imp = responseData.data.data;
+			console.log({imp})
 
-			console.log(imp)
 		this.impImage = `${process.env.VUE_APP_BACKEND_IMAGE_URL}/${imp.image}`;
 		});
 		this.randomImp()
@@ -277,14 +282,17 @@ export class MainScene {
 			this.engine.resize();
 		});
 		})
-		this.datacalled();
+		
+		setInterval(() => {
+    		this.datacalled();
+		}, 3000);
 		
 		
 	}
 
 	// call the random data
 	async randomImp() {
-		const data = await axios.get('settings/list-imp');
+		const data = await axios.get('settings/random-imp');
 		return data;
 	}
 
@@ -296,7 +304,10 @@ export class MainScene {
 				Authorization: "Bearer " + localStorage.getItem("token"),
 			},
 		});
-		
+		console.log({ data });
+		this.userID = data?.data?.data?.userId;
+		this.frequency = data?.data?.data?.frequency
+		this.earType = data?.data?.data?.earSide === "left" ? -1 : 1;
 		return data;
 	}
 
@@ -455,14 +466,7 @@ export class MainScene {
 			startBtn.isVisible = false;
 			this.pauseBtn.isVisible = true;
 			playerUI.removeControl(startBtn);
-
 			this.scene.getSoundByName("pleasentsound").play();
-
-			//this.engine.enterFullscreen(true);
-
-			//--SOUNDS--
-			// this._scene.getSoundByName('gameSong').pause()
-			// this._pause.play() //play pause music
 		});
 
 		// for visual test image display
@@ -610,7 +614,7 @@ export class MainScene {
 		SceneLoader.ImportMesh(
 			"",
 			"models/",
-			"newlowforest.glb",
+			"newlowforest02.glb",
 			this.scene,
 			(
 				newMeshes: any,
@@ -626,6 +630,7 @@ export class MainScene {
 					mesh.checkCollisions = false;
 
 					this.scene.onBeforeRenderObservable.add(() => {
+					
 						if (
 							(this.mobileDown || this.mobileLeft || this.mobileRight,
 							this.mobileUp)
@@ -635,8 +640,10 @@ export class MainScene {
 							mesh.checkCollisions = false;
 						}
 						if (mesh.name.includes("colllision")) {
+							// console.log("bibash", mesh.name)
 							mesh.checkCollisions = true;
-							mesh.isVisible = false;
+							mesh.isVisible = true;
+							// console.log("bibash", mesh.checkCollisions)
 						}
 
 						// if (mesh.name == "objectdisplay") {
@@ -808,7 +815,9 @@ export class MainScene {
 						!this.FrequencyPlay &&
 						this.Loaded &&
 						!this._mobileJump &&
-						this.soundCount != this.visualCount
+						this.soundCount != this.visualCount &&
+						this.hearingTest &&
+						!this.visualTest
 					) {
 						this.FrequencyPlay = true;
 						setTimeout(() => {
@@ -823,9 +832,36 @@ export class MainScene {
 					//for hearing test
 					if (this._frequencyPlay) {
 						this._frequencyPlay = false;
+						this.hearingTest = false;
+						this.soundCount++;
 						setTimeout(() => {
 							if (this._mobileJump) {
 								this.frequencyhear = true;
+								this.score = this.score - 0.5;
+								this.FrequencyPlay = false;
+								this.hearCount = this.hearCount + 1;
+								this.hearCount == 1 ? this.volumeControl = (this.volumeControl - 0.05) : "";
+								const earside = this.earType === -1 ? "left" : "right";
+								this.addSoundTesting(this.frequency, this.volumeControl, true, earside);
+								if(this.hearCount == 2){
+									if (this.frequency == 500 ) {
+										this.newFrequency = 1000;
+									}
+									if (this.frequency == 1000 ) {
+										this.newFrequency = 2000;
+									}
+									if (this.frequency == 2000) {
+										this.newFrequency = 4000;
+									}
+									if (this.frequency == 4000) {
+										this.newFrequency = 500;
+									}
+									this.updateUserGame(this.newFrequency, 0.2, earside, this.score)
+								}else{
+									this.updateUserGame(this.frequency, this.volumeControl, earside, this.score)
+								}
+									
+									
 							} else {
 								this._soundControl = false;
 								this.lossSound.play();
@@ -833,61 +869,67 @@ export class MainScene {
 								setTimeout(async () => {
 									this.lossSound.stop();
 									this.lossGame = false;
+									this.hearingTest = true;
 									this.lossCount++;
 									this.count = 0;
 									this.score = this.score - 0.5;
 									this.FrequencyPlay = false;
-									this.soundCount++;
-									this.volumeControl = this.volumeControl + 0.15;
+									this.volumeControl = this.volumeControl + 0.10;
 									const earSide = this.earType === -1 ? "left" : "right";
 									this.updateUserGame(this.frequency, this.volumeControl, earSide, this.score);
-									this.addSoundTesting(this.frequency, this.volumeControl - 0.15, false, earSide)
-								}, 2000);
+									this.addSoundTesting(this.frequency, this.volumeControl -  0.10, false, earSide)
+								}, 4000);
 							}
 						}, 3000);
 					}
-
-					if (
+					// visual test
+						if (
 						this.soundCount == this.visualCount &&
 						this.Loaded &&
 						!this.gamePaused &&
 						this.visualTestCount == 0 &&
-						!this.FrequencyPlay
-					) {
-						this.visualTestCount++;
-						this._visualTest.isVisible = true;
-						this._soundControl = true;
-
+						!this.FrequencyPlay &&
+						!this.visualTest
+						
+						) {
+							
+							this.visualTest = true
+							this._soundControl = true;
+							this.soundCount++;
+							this.visualTestCount++;
 						setTimeout(() => {
-							if (!this._mobileJump) {
-								this._visualTest.isVisible = false;
-								this.lossSound.play();
-								this.lossGame = true;
-								this._soundControl = false;
-								setTimeout(() => {
+							this._visualTest.isVisible = true;
+							setTimeout(() => {
+								if (!this._mobileJump) {
+									this._visualTest.isVisible = false;
+									this.lossSound.play();
 									this.lossGame = true;
+									this._soundControl = false;
 									setTimeout(() => {
-										this.lossSound.stop();
-										this.soundCount = 0;
-										this.lossGame = false;
-										this.visualTestCount = 0;
-										this.lossCount++;
-										this.count = 0;
-										this.score = this.score - 0.5;
-										this.visualCount = Math.floor(
-											Math.random() * (7 - 5 + 1) + 5,
-										);
-									}, 1000);
-								}, 1000);
-							} else {
-								this._visualTest.isVisible = false;
-							}
-						}, 3000);
+										this.lossGame = true;
+										setTimeout(() => {
+											this.lossSound.stop();
+											this.soundCount = 0;
+											this.visualCount = Math.floor(Math.random() * (5 - 3 + 1) + 3);
+											this.lossGame = false;
+											this.visualTestCount = 0;
+											this.lossCount++;
+											this.count = 0;
+											this.score = this.score - 0.5;
+											this.visualTest = false
+										}, 1000);
+									}, 3000);
+								} else {
+									this._visualTest.isVisible = false;
+									this.visualCount = Math.floor(Math.random() * (5 - 3 + 1) + 3)
+									// this.visualTest = false
+								}
+							}, 3000);
+						},2000)
 					}
 				});
 			},
 		);
-
 		return scene;
 	}
 
@@ -895,6 +937,14 @@ export class MainScene {
 	public activatePlayerCamera(): UniversalCamera {
 		this.scene.registerBeforeRender(() => {
 			this._updateCamera();
+		});
+
+		return this.camera;
+	}
+
+		public activateCameraImps(): UniversalCamera {
+		this.scene.registerBeforeRender(() => {
+			this._updateCameraImp();
 		});
 
 		return this.camera;
@@ -1093,31 +1143,31 @@ export class MainScene {
 	// frequency controll
 	private _playFrequency(): void {
 		if (this.lossCount > 0) {
-			//console.log({ data });
 		}
 
-		if (this.frequencyhear && this.hearCount == 1) {
+		if (this.frequencyhear && this.hearCount == 2 && this.frequency == 500) {
 			this.lossCount = 0;
+			this.hearCount = 0;
 			this.frequencyhear = false;
 			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 1000;
-			
-
 		}
-		if (this.frequencyhear && this.hearCount == 2) {
+		if (this.frequencyhear && this.hearCount == 2 &&  this.frequency == 1000) {
 			this.lossCount = 0;
+			this.hearCount = 0;
 			this.frequencyhear = false;
 			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 2000;
 		}
-		if (this.frequencyhear && this.hearCount == 3) {
+		if (this.frequencyhear && this.hearCount == 2 && this.frequency == 2000) {
 			this.lossCount = 0;
+			this.hearCount = 0;
 			this.frequencyhear = false;
 			const earside = this.earType === -1 ? "left" : "right";
 			this.frequency = 4000;
 		}
 
-		if (this.frequency == 4000 && this.hearCount == 4) {
+		if (this.frequency == 4000 && this.hearCount == 2 && this.frequency == 4000) {
 			this.hearCount = 0;
 			this.frequency = 500;
 			this.earType = this.earType == -1 ? 1 : -1;
@@ -1561,27 +1611,16 @@ export class MainScene {
 
 									this.winGame = true;
 									let earside = this.earType === -1 ? "left" : "right";
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earside);
-								
-									if (this.frequency == 500) {
-										this.newFrequency = 1000;
-									}
-									if (this.frequency == 1000) {
-										this.newFrequency = 2000;
-									}
-									if (this.frequency == 2000) {
-										this.newFrequency = 5000;
-									}
-									if (this.frequency == 5000) {
-										this.newFrequency = 500;
-									}
-									console.log("new freqnecy", this.newFrequency);
-									earside = this.frequency == 5000 ? this.earType === -1 ? "right" : "left" : earside;
 									
-									this.updateUserGame(this.newFrequency, 0.2, earside, this.score)
-
+									// this.activateCameraImps()
 									this.winSound.play();
 									setTimeout(() => {
+										// this.activatePlayerCamera()
+										if(this.hearCount == 2 && this.earType === 1 && this.frequency === 4000){
+											window.open(`localhost:8080/user/${this.userID}`)
+											this.gamePaused = true;
+										}
+										this.hearingTest = true;
 										this.winSound.stop();
 										this.winGame = false;
 										this.score = this.score + 1;
@@ -1589,13 +1628,12 @@ export class MainScene {
 										this.FrequencyPlay = false;
 										if (this.visualTestCount == 1) {
 											this.visualCount = Math.floor(
-												Math.random() * (7 - 5 + 1) + 5,
+												Math.random() * (5 - 3 + 1) + 3,
 											);
-											this.visualTestCount = 0;
+											
 											this.soundCount = 0;
-										} else {
-											this.soundCount++;
-											this.hearCount = this.hearCount + 1;
+											this.visualTestCount = 0;
+											this.visualTest = false;
 										}
 										this.datacalled();
 									}, 2000);
@@ -1618,6 +1656,19 @@ export class MainScene {
 			this._camRoot.position,
 			new Vector3(this.mesh.position.x, centerPlayer, this.mesh.position.z),
 			0.4,
+		);
+	}
+
+
+	private _updateCameraImp(): void {
+		//trigger areas for rotating camera view
+
+		let centerPlayer = this.displayPosition.y + 10;
+
+		this._camRoot.position = Vector3.Lerp(
+			this._camRoot.position,
+			new Vector3(this.displayPosition.x +2, centerPlayer, this.mesh.position.z + 10),
+			0.9,
 		);
 	}
 

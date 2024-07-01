@@ -22,12 +22,18 @@ import {
 	AdjustmentsIcon,
 	DocumentTextIcon,
 } from "@heroicons/vue/outline";
+import UserDetails from "@/pages/UserDetails.vue";
 
 const routes = [
 	{
 		name: "HomePage",
 		component: Home,
 		path: "/",
+	},
+	{
+		name: "UserDetails",
+		component: UserDetails,
+		path: "/user/:id",
 	},
 	{
 		name: "Chest",

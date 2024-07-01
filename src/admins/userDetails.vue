@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
 	<div class="ml-auto mb-6 lg:w-[75%] xl:w-[80%] 2xl:w-[85%] sm:w-full">
 		<div class="sticky z-10 top-0 h-16 border-b bg-white lg:py-2.5">
@@ -25,8 +26,7 @@
 				</button>
 				<div>
 					<span
-						@mouseover="upHere = true"
-						@mouseleave="upHere = false"
+						
 						id="dropdownbtn"
 						class="relative hover:bg-blue-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 						type="button"
@@ -57,7 +57,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="p-2 flex flex-col">
+		<div class="p-2 flex flex-col min-h-[500px]">
 			<div class="flex flex-col">
 				<div class="font-bold text-blue-700">
 					<h2>User Overview</h2>
@@ -159,28 +159,85 @@
 					<h2>Sound Test</h2>
 				</div>
 				<div class="flex justify-between p-4">
-					<div>Left Ear</div>
-					
-					<div>Right Ear</div>
 				</div>
 			</div>
 			<div class="flex flex-col h-20">
 				<div class="font-bold">
 					<h2>Graph</h2>
 
-					<div class="h-40">
-						<BarChart/>
+					<div class="h-40" v-if="childDataLoaded">
+						<BarChart  :label="labels" :left="leftData" :right="rightData" />
 					</div>
 				</div>
+			</div>
+			
+		</div>
+		<div>
+			<div class="table-container">
+				<h1>User Game Records Table</h1>
+				<table class="records-table">
+				<thead>
+					<tr>
+					<!-- <th>ID</th> -->
+					<th>Sound Level</th>
+					<th>Frequency</th>
+					<th>Ear Side</th>
+					<th>Sound Heard</th>
+					<!-- Add more headers as needed -->
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="record in soundData" :key="record.id">
+					<!-- <td>{{ record.id }}</td> -->
+					<td>{{ record.soundLevel.toFixed(2) }}</td>
+					<td>{{ record.frequency }}</td>
+					<td>{{ record.earSide }}</td>
+					<td>{{ isActive(record.isHeard) }}</td>
+					<!-- Add more columns as needed -->
+					</tr>
+				</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
 </template>
+<style>
+.table-container {
+  width: 80%;
+  margin: 20px auto;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.records-table th, .records-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.records-table th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.records-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.records-table tbody tr:hover {
+  background-color: #e9e9e9;
+}
+
+</style>
 <script lang="ts">
 import { defineComponent } from "vue";
 import BarChart from "./BarChart.vue";
 
-import { getUserDetails, updateUserConfig } from "@/action/user";
+import { getUserDetails, soundTesting, updateUserConfig } from "@/action/user";
 import { toInteger } from "lodash";
 const defaultForm = {
 	earSide: "",
@@ -200,9 +257,15 @@ export default defineComponent({
 	},
 	data() {
 		return {
+			childDataLoaded: false,
+			labels : [],
+			leftData: [],
+			rightData:[],
 			errors: [] as string[],
+			soundData:[] as any,
 			component: "",
 			userdetails: {
+				id:Number,
 				fullName: "",
 				email: "",
 				role: "",
@@ -225,17 +288,28 @@ export default defineComponent({
 	methods: {
 		async getUserDetails() {
 			const result = await getUserDetails(toInteger(this.component));
-			console.log("bibash", result?.data.data);
 
 			this.userdetails = result?.data.data;
 			this.gameConfig.frequency = this.userdetails.game[0].frequency;
 			this.gameConfig.earSide = this.userdetails.game[0].earSide;
 			this.gameConfig.soundLevel = this.userdetails.game[0].soundLevel;
 			this.gameConfig.speed = this.userdetails.game[0].speed;
+
+			const results = await soundTesting(parseInt(this.component));
+			const datas= results?.data?.data
+			this.soundData = datas;
+			console.log({datas})
+			const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
+			const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
+	
+			
+			this.labels = heardLeft?.map((item: any) => item.frequency) as any;
+			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
+			this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;
+			this.childDataLoaded = true
 		},
 
 		async hasChanged() {
-			console.log("test");
 			if (this.gameConfig.frequency == "") {
 				this.errors.push("Frequency is empty");
 			}
@@ -268,13 +342,28 @@ export default defineComponent({
 				);
 			}
 		},
+
+		isActive(active:boolean) {
+			return active ? 'Yes' : 'No';
+      }
 	},
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	mounted() {
 		this.component = window.location.pathname.split("/")[3];
-		console.log(this.component);
 		this.getUserDetails();
 	},
+	async created() {
+			const results = await soundTesting(parseInt(this.component));
+			const datas= results?.data?.data
+		
+			const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
+			const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
+			console.log("bibash2", { heardLeft });
+			
+			this.labels = heardLeft?.map((item: any) => item.frequency) as any;
+			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
+			this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;
+	}
 });
 </script>

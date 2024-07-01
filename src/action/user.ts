@@ -68,3 +68,21 @@ export const userGame = async () => {
 			: error;
 	}
 };
+
+
+export const soundTesting = async (id:number) => {
+	try {
+		const result = await axios.get(`/sound-test/admin/lists/${id}`, {
+			headers: {
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+		});
+		return result;
+	} catch (error: any) {
+		return error.response
+			? error.response.data.message
+			: error.message
+			? error.message
+			: error;
+	}
+}

@@ -180,7 +180,7 @@ export default defineComponent({
 	components: {},
 
 	setup(props) {
-		console.log("user", props.user);
+		console.log("users", props.user);
 	},
 	data() {
 		return {

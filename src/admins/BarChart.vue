@@ -1,5 +1,6 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
-  <Line :data=chartData :options=options />
+  <Line :data=chartData  />
 </template>
 
 <script lang=ts>
@@ -25,474 +26,36 @@ ChartJS.register(
   Tooltip,
   Legend
 )
-
 export default defineComponent({
-  name: 'ChartPage',
+	name: 'ChartPage',
+//   props: ["id"],
   components: {
     Line
+	},
+	props: {
+		label: {
+		type: Array
+		},
+		left: {
+		type: Array
+		},
+		right: {
+		type: Array
+		},
   },
+
+
+  
 	data() {
-       const datas = [
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: true,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 500,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: true,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: true,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: true,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "right",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: true,
-			frequency: 500,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: true,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 1000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: true,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 2000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 29,
-			soundLevel: 0.15,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 30,
-			soundLevel: 0.2999999999999999,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 31,
-			soundLevel: 0.45,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 32,
-			soundLevel: 0.6,
-			isHeard: true,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 33,
-			soundLevel: 0.75,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 34,
-			soundLevel: 0.9,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
-		{
-			id: 35,
-			soundLevel: 1.0,
-			isHeard: false,
-			frequency: 4000,
-			earSide: "left",
-			userId: 7
-		},
+		console.log(this.label, "label");
 
-      ]
-		const heardLeft = datas.filter((item:any) => item.isHeard && item.earSide === 'left');
-       const heardRight = datas.filter((item:any) => item.isHeard && item.earSide === 'right');
     return {
-
 		chartData: {
-		labels: heardLeft?.map((item:any) => item.frequency), // X-axis labels based on frequency
+		labels: this.label, // X-axis labels based on frequency
          datasets: [
            {
              label: 'Left Ear',
-             data: heardLeft?.map((item:any) => item.soundLevel),
+             data: this.left,
              borderColor: 'rgba(75, 192, 192, 1)',
              borderWidth: 2,
              pointRadius: 5,
@@ -500,48 +63,83 @@ export default defineComponent({
            },
            {
              label: 'Right Ear',
-             data: heardRight?.map((item:any) => item.soundLevel),
+             data: this.right,
              borderColor: 'rgba(255, 99, 132, 1)',
              borderWidth: 2,
              pointRadius: 5,
              pointBackgroundColor: 'rgba(255, 99, 132, 1)',
            },
          ],
-	},
+		},
     }
   },
   methods: {
-  async abc() {
-       // Filter the data for isHeard true and separate by earSide
-    //    const heardLeft = this.datas.filter((item:any) => item.isHeard && item.earSide === 'left');
-    //    const heardRight = this.datas.filter((item:any) => item.isHeard && item.earSide === 'right');
-    //   console.log({heardLeft});
-    //    const chartData = {
-    //     labels: heardLeft?.map((item:any) => item.frequency), // X-axis labels based on frequency
-    //      datasets: [
-    //        {
-    //          labels: 'Left Ear',
-    //          data: heardLeft?.map((item:any) => item.soundLevel),
-    //          borderColor: 'rgba(75, 192, 192, 1)',
-    //          borderWidth: 2,
-    //          pointRadius: 5,
-    //          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-    //        },
-    //        {
-    //          labels: 'Right Ear',
-    //          data: heardRight?.map((item:any) => item.soundLevel),
-    //          borderColor: 'rgba(255, 99, 132, 1)',
-    //          borderWidth: 2,
-    //          pointRadius: 5,
-    //          pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-    //        },
-    //      ],
-    //    };
-     }
-  },
-  onMount() {
-    this.abc();
-  }
+	// async abc() {
+	// 	console.log(this.component)
+	// 	const results = await soundTesting(parseInt(this.component));
+	// 	console.log("bibash2",results?.data?.data)
+	// 	datas = results?.data?.data
+	// 	// console.log({ results })
+	// 	// // const datas = await results.json()
+	// 	// console.log({datas})
+    //    // Filter the data for isHeard true and separate by earSide
+    // //    const heardLeft = this.datas.filter((item:any) => item.isHeard && item.earSide === 'left');
+    // //    const heardRight = this.datas.filter((item:any) => item.isHeard && item.earSide === 'right');
+    // //   console.log({heardLeft});
+    // //    const chartData = {
+    // //     labels: heardLeft?.map((item:any) => item.frequency), // X-axis labels based on frequency
+    // //      datasets: [
+    // //        {
+    // //          labels: 'Left Ear',
+    // //          data: heardLeft?.map((item:any) => item.soundLevel),
+    // //          borderColor: 'rgba(75, 192, 192, 1)',
+    // //          borderWidth: 2,
+    // //          pointRadius: 5,
+    // //          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+    // //        },
+    // //        {
+    // //          labels: 'Right Ear',
+    // //          data: heardRight?.map((item:any) => item.soundLevel),
+    // //          borderColor: 'rgba(255, 99, 132, 1)',
+    // //          borderWidth: 2,
+    // //          pointRadius: 5,
+    // //          pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+    // //        },
+    // //      ],
+    // //    };
+    //  }
+	},
+	async created() {
+	// 		console.log("newTEST",window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2])
+	// 	const id  = window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2];
+	// // console.log(id);
+	// 	// this.abc();
+	// 	// let datas:any[];
+	// 	const results = await soundTesting(parseInt(id));
+	// 		console.log("bibash2",results?.data?.data)
+	// 		datas= results?.data?.data
+       
+	// 	const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
+	// 	const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
+	// 	console.log("bibash2", { heardLeft });
+		
+	// 	this.chartData.labels = heardLeft?.map((item: any) => item.frequency) as any;
+	// 	this.chartData.datasets[0].data = heardLeft?.map((item: any) => item.soundLevel)  as any;
+	// 	this.chartData.datasets[1].data = heardRight?.map((item: any) => item.soundLevel) as any;
+	// 	console.log("bibash2",this.chartData.labels, this.chartData.datasets[0].data);
+
+
+	}
+  
+// 	async beforeCreate() {
+// 	console.log("newTEST",window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2])
+// 	this.component = window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2];
+// 	// console.log(id);
+// 		// this.abc();
+// 	const results = await soundTesting(parseInt(this.component));
+// 		console.log("bibash2",results?.data?.data)
+// 		datas = results?.data?.data
+//   }
   
 });
 </script>

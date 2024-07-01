@@ -60,7 +60,7 @@
 			<div class="flex flex-1 justify-end" v-if="user">
 				<div>
 					<a
-						href="/user/:username"
+						:href="'/user/' + user.id"
 						class="text-sm font-semibold leading-6 text-gray-900"
 					>
 						<span class="flex justify-center items-center"
