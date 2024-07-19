@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/require-v-for-key -->
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
 	<div class="ml-auto mb-6 lg:w-[75%] xl:w-[80%] 2xl:w-[85%] sm:w-full">
@@ -126,13 +127,16 @@
 						</div>
 						<div>
 							<div class="font-semibold">Sound Level</div>
-							<div>
-								<input
-									class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-									type="text"
-									v-model="gameConfig.soundLevel"
-								/>
-							</div>
+
+							<select name="soundLevel" id="soundLevel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" v-model="gameConfig.soundLevel" >
+								<option v-for="item in items"
+										v-bind:value="item.decibel"
+										:selected="item?.decibel === gameConfig.soundLevel ? true : false">
+									<span :key="item.id">
+										{{item?.decibel}}
+									</span>
+								</option>
+							</select>
 						</div>
 						<div>
 							<div class="font-semibold">Ear Side</div>
@@ -148,7 +152,7 @@
 							<div
 								class="bg-green-800 p-2 justify-center items-center rounded-md hover:bg-green-600"
 							>
-								<input type="submit" value="Save" />
+								<input type="submit"  value="Save" />
 							</div>
 						</div>
 					</div>
@@ -236,8 +240,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import BarChart from "./BarChart.vue";
-
-import { getUserDetails, soundTesting, updateUserConfig } from "@/action/user";
+import { useToast } from "vue-toastification";
+import { getUserDetails, soundTesting, updateUserConfig, getVolumeLevelList } from "@/action/user";
 import { toInteger } from "lodash";
 const defaultForm = {
 	earSide: "",
@@ -252,11 +256,14 @@ export default defineComponent({
 	BarChart	
 	},
 
-	setup(props) {
-		console.log("user", props.user);
+	setup() {
+		
+		const toast = useToast();
+   return { toast }
 	},
 	data() {
 		return {
+			items:[] as any,
 			childDataLoaded: false,
 			labels : [],
 			leftData: [],
@@ -286,9 +293,28 @@ export default defineComponent({
 		};
 	},
 	methods: {
+
+		triggerToast(message:string) {
+			this.toast(message, {
+				// position: "top-right",
+				timeout: 2000,
+				closeOnClick: true,
+				pauseOnFocusLoss: true,
+				pauseOnHover: true,
+				draggable: true,
+				draggablePercent: 0.6,
+				showCloseButtonOnHover: false,
+				hideProgressBar: true,
+				closeButton: "button",
+				icon: "fas fa-rocket",
+				rtl: false
+				
+			});
+		},
 		async getUserDetails() {
 			const result = await getUserDetails(toInteger(this.component));
 
+						console.log("bibash 123",{result})
 			this.userdetails = result?.data.data;
 			this.gameConfig.frequency = this.userdetails.game[0].frequency;
 			this.gameConfig.earSide = this.userdetails.game[0].earSide;
@@ -307,6 +333,11 @@ export default defineComponent({
 			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
 			this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;
 			this.childDataLoaded = true
+		},
+		async getVolumeLeve() {
+			const result = await getVolumeLevelList()
+
+			this.items = result.data.data
 		},
 
 		async hasChanged() {
@@ -339,7 +370,9 @@ export default defineComponent({
 					parseFloat(this.gameConfig.soundLevel),
 					parseFloat(this.gameConfig.speed),
 					this.gameConfig.earSide,
+					
 				);
+				this.triggerToast(result.data.msg)
 			}
 		},
 
@@ -352,6 +385,7 @@ export default defineComponent({
 	mounted() {
 		this.component = window.location.pathname.split("/")[3];
 		this.getUserDetails();
+		this.getVolumeLeve()
 	},
 	async created() {
 			const results = await soundTesting(parseInt(this.component));

@@ -8,7 +8,6 @@ if (abc != null) {
 		JSON.parse(localStorage.getItem("currentUser") || ""),
 	);
 }
-console.log(currentUserSubject);
 
 export default currentUserSubject;
 // export const authenticationService = {
@@ -18,3 +17,5 @@ export default currentUserSubject;
 // 		return currentUserSubject.value;
 // 	},
 // };
+
+

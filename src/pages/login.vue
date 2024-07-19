@@ -129,7 +129,7 @@ export default defineComponent({
 				this.errorMsg = result;
 			} else if (result.data.statusCode === 200) {
 				localStorage.setItem("token", result.data.token);
-				window.history.pushState(null, '/')
+				// window.history.go('/')
 				// this.$router.push("/");
 			}
 		},
