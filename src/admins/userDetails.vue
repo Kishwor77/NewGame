@@ -314,7 +314,7 @@ export default defineComponent({
 		async getUserDetails() {
 			const result = await getUserDetails(toInteger(this.component));
 
-						console.log("bibash 123",{result})
+			
 			this.userdetails = result?.data.data;
 			this.gameConfig.frequency = this.userdetails.game[0].frequency;
 			this.gameConfig.earSide = this.userdetails.game[0].earSide;
@@ -324,9 +324,8 @@ export default defineComponent({
 			const results = await soundTesting(parseInt(this.component));
 			const datas= results?.data?.data
 			this.soundData = datas;
-			console.log({datas})
-			const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
-			const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
+			const heardLeft = datas?.filter((item:any) => item.isThreshold && item.earSide === 'left');
+			const heardRight = datas?.filter((item:any) => item.isThreshold && item.earSide === 'right');
 	
 			
 			this.labels = heardLeft?.map((item: any) => item.frequency) as any;

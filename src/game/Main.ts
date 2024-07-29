@@ -251,12 +251,6 @@ export class MainScene {
 		this.datacalled().then((responseData) => {
 
 			this.userGame = responseData.data.data;
-	
-			this.frequency = this.userGame.frequency;
-			this.volumeControl = this.userGame.soundLevel;
-			this.speed = this.userGame.speed;
-			this.earType = this.userGame.earSide === "left" ? -1 : 1;
-			this.score = this.userGame.coin;
 			this.scene = this.CreateScene();
 			this.scene.enablePhysics(
 				new Vector3(0, -9.81, 0),
@@ -351,18 +345,21 @@ export class MainScene {
 		this.userID = data?.data?.data?.userId;
 		this.frequency = data?.data?.data?.frequency
 		this.earType = data?.data?.data?.earSide === "left" ? -1 : 1;
+		this.volumeControl = data?.data?.data?.soundLevel;
+		this.speed = data?.data?.data?.speed;
+		this.score = data?.data?.data?.coin;
 		return data;
 	}
 
 
 	// update the user game status in the record
-	async updateUserGame(frequency: number, volume: number, earside: string, coin: number) {
+	async updateUserGame(frequency: number, volume: number, earSide: string, coin: number) {
 		axios.put(
 				"game/user/update",
 				{
 					frequency: frequency,
 					soundLevel: volume,
-					earside: earside,
+					earSide: earSide,
 					coin,
 				},
 				{
@@ -405,7 +402,7 @@ export class MainScene {
 		async updateSoundTesting(
 			{ isThreshold, isLastPlay, id }
 			: { isThreshold?: boolean; isLastPlay?: boolean; id: number; }) {
-		await axios.post(
+		await axios.patch(
 			`sound-test/update/${id}`,
 			{
 				isThreshold,
@@ -963,19 +960,46 @@ export class MainScene {
 								this._soundControl = false;
 								this.lossSound.play();
 								this.lossGame = true;
-								const earSide = this.earType === -1 ? "left" : "right";
+								let earSide = this.earType === -1 ? "left" : "right";
 								this.score = this.score - 0.5;
 								if (!lastGame) {
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earSide, false, true)
+									console.log('bibash1 no last game')
+									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
+									this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
 								}
 								else {
-									this.updateSoundTesting({ id: lastGame.id, isThreshold: true, isLastPlay: false })
-									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
-									if (this.frequency === lastGame.frequency) {
-										this.updateSoundTesting({ id: lastGame.id, isThreshold: true, isLastPlay: false })
+									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
+									if (this.frequency === lastGame.frequency && lastGame.isHeard) {
+										console.log('bibash1 found threshold')
+										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false)
+										if (lastGame.frequency === 500) {
+											this.frequency = 1000
+										}
+										if (lastGame.frequency === 1000) {
+											this.frequency = 2000
+										}
+										if (lastGame.frequency === 2000) {
+											this.frequency = 4000
+										}
+										if (lastGame.frequency === 4000) {
+											this.frequency = 500
+											earSide = this.earType === 1 ? "left" : "right";
+										}
+										if (lastGame.frequency === 4000 && lastGame.earSide === 'right') {
+											this.gamePaused = true;
+											startBtn.isVisible = false;
+											window.open(`localhost:8080/user/${this.userID}`)
+										}
+										this.updateUserGame(this.frequency, 50, earSide, this.score);
 									}
+									else {
+										console.log('bibash1 yes last game')
+										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
+										this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
+									}
+									
 								}
-								this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
+								
 								setTimeout(async () => {
 									this.lossSound.stop();
 									this.lossGame = false;
@@ -1249,34 +1273,6 @@ export class MainScene {
 	// frequency controll
 	private async _playFrequency() {
 		// if (this.lossCount > 0) {
-		// }
-
-		// if (this.frequencyhear && this.hearCount == 2 && this.frequency == 500) {
-		// 	this.lossCount = 0;
-		// 	this.hearCount = 0;
-		// 	this.frequencyhear = false;
-		// 	const earside = this.earType === -1 ? "left" : "right";
-		// 	this.frequency = 1000;
-		// }
-		// if (this.frequencyhear && this.hearCount == 2 &&  this.frequency == 1000) {
-		// 	this.lossCount = 0;
-		// 	this.hearCount = 0;
-		// 	this.frequencyhear = false;
-		// 	const earside = this.earType === -1 ? "left" : "right";
-		// 	this.frequency = 2000;
-		// }
-		// if (this.frequencyhear && this.hearCount == 2 && this.frequency == 2000) {
-		// 	this.lossCount = 0;
-		// 	this.hearCount = 0;
-		// 	this.frequencyhear = false;
-		// 	const earside = this.earType === -1 ? "left" : "right";
-		// 	this.frequency = 4000;
-		// }
-
-		// if (this.frequency == 4000 && this.hearCount == 2 && this.frequency == 4000) {
-		// 	this.hearCount = 0;
-		// 	this.frequency = 500;
-		// 	this.earType = this.earType == -1 ? 1 : -1;
 		// }
 		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 		const oscillator = audioCtx.createOscillator();
@@ -1732,11 +1728,8 @@ export class MainScene {
 									this.winSound.play();
 									setTimeout(() => {
 										// this.activatePlayerCamera()
-										if (this.hearCount == 2 && this.earType === 1 && this.frequency === 4000) {
-											this.gamePaused = true;
-											window.open(`localhost:8080/user/${this.userID}`)
-											
-										}
+										
+										
 										this.hearingTest = true;
 										this.winSound.stop();
 										this.winGame = false;
