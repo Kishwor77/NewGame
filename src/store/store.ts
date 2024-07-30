@@ -8,7 +8,6 @@ export const store = reactive({
 	},
 	isItemsDisplay: false,
 	itemsDisplayToggle() {
-		console.log("test111");
 		this.isItemsDisplay
 			? (this.isItemsDisplay = false)
 			: (this.isItemsDisplay = true);

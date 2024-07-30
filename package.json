@@ -48,7 +48,8 @@
 		"vue-flux": "^7.0.0-alpha.0",
 		"vue-property-decorator": "^9.1.2",
 		"vue-router": "^4.2.5",
-		"vue-ssr-carousel": "^2.3.2"
+		"vue-ssr-carousel": "^2.3.2",
+		"vue-toastification": "^2.0.0-rc.5"
 	},
 	"devDependencies": {
 		"@types/jest": "^27.0.1",

@@ -27,6 +27,20 @@ export const getUserDetails = async (id: number) => {
 	}
 };
 
+export const getVolumeLevelList = async () => {
+	try {
+	
+		const result = await axios.get(`settings/decibel`);
+		return result;
+	} catch (error: any) {
+		return error.response
+			? error.response.data.message
+			: error.message
+			? error.message
+			: error;
+	}
+};
+
 export const updateUserConfig = async (
 	id: number,
 	frequency: number,

@@ -1,7 +1,8 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
-
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 import "./axios";
 import router from "./router";
 
@@ -19,6 +20,7 @@ library.add(faUserSecret,faStar)
 createApp(App)
     .component('font-awesome-icon', FontAwesomeIcon)
     .use(router)
+    .use(Toast)
     .mount("#app");
 
 // const createNewApp = () => {

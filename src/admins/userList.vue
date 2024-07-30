@@ -38,17 +38,17 @@
 					<div
 						id="dropdown"
 						v-show="upHere"
-						class="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute"
+						class="z-10 bg-gray-300 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute"
 					>
 						<ul
 							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							@mouseover="upHere = true"
-							@mouseleave="upHere = false"
+							
 						>
 							<li>
 								<a
-									href="#"
+									href="/login"
 									class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+									@click="removeToken"
 									>Sign out</a
 								>
 							</li>
@@ -171,28 +171,56 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
-import AdminAside from "./aside.vue";
 import { userList } from "@/action/user";
+import { useToast } from "vue-toastification";
 import { users } from "./interface/user.interface";
+import {removeToken} from '../utils/authData'
 export default defineComponent({
 	name: "UserList",
 	props: ["user"],
 	components: {},
 
-	setup(props) {
-		console.log("users", props.user);
+	setup() {
+		const toast = useToast();
+	return { toast }
 	},
 	data() {
 		return {
-			userdetails: [] as string[],
+			userdetails: [] as users[],
+			upHere: false,
+			removeToken,
+			
 		};
 	},
 	methods: {
 		async listUser() {
 			const result = await userList();
-			console.log("bibash", result?.data.data);
-			let userdetails = [];
-			this.userdetails = result?.data.data;
+			console.log({ result })
+			if (result?.data?.statusCode !== 200 || !result?.data) {
+				this.triggerToast(result)
+			}
+			else {
+				this.userdetails = result?.data.data;
+				
+			}
+		},
+
+		triggerToast(message:string) {
+			this.toast(message, {
+				// position: "top-right",
+				timeout: 2000,
+				closeOnClick: true,
+				pauseOnFocusLoss: true,
+				pauseOnHover: true,
+				draggable: true,
+				draggablePercent: 0.6,
+				showCloseButtonOnHover: false,
+				hideProgressBar: true,
+				closeButton: "button",
+				icon: "fas fa-rocket",
+				rtl: false
+				
+			});
 		},
 	},
 	// eslint-disable-next-line @typescript-eslint/no-empty-function

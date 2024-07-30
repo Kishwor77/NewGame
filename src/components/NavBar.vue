@@ -62,10 +62,16 @@
 					<a
 						:href="'/user/' + user.id"
 						class="text-sm font-semibold leading-6 text-gray-900"
+						@mouseover="upHere = true" @mouseleave="upHere = false"
 					>
-						<span class="flex justify-center items-center"
-							>{{ user.fullName }} <img class="h-8 pl-1" src="/images/user.png"
-						/></span>
+						<span  class="flex justify-center items-center">
+							{{ user.fullName }} <img class="h-8 pl-1" src="/images/user.png"/>
+						</span>
+						<div v-show="upHere"  class="absolute shadow-md bg-gray-200 p-4 rounded-md min-w-[7rem] z-10">
+							<a href="/login" @click="removeToken">
+								Logout
+							</a>
+						</div>
 					</a>
 				</div>
 			</div>
@@ -76,7 +82,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
+import {removeToken} from '../utils/authData'
 export default defineComponent({
 	name: "NavBar",
 	// mounted() {
@@ -85,11 +91,18 @@ export default defineComponent({
 	// 	new MainScene(canvas);
 	// },
 	props: ["user"],
-
+	abc: {
+	upHere: false
+	},
 	data() {
 		return {
 			currentUrl: window.location.href,
+			removeToken,
+			upHere:false
 		};
+		
+		
 	},
+	
 });
 </script>

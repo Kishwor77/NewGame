@@ -105,11 +105,10 @@ export default defineComponent({
             console.log(this.id)
 
             const results = await soundTesting(parseInt(this.id));
-			console.log("bibash2",results?.data?.data)
 			const datas= results?.data?.data
        
-			const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
-			const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
+			const heardLeft = datas?.filter((item:any) => item.isThreshold && item.earSide === 'left');
+			const heardRight = datas?.filter((item:any) => item.isThreshold && item.earSide === 'right');
 			console.log("bibash2", { heardLeft });
 			
 			this.labels = heardLeft?.map((item: any) => item.frequency) as any;

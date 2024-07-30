@@ -52,6 +52,11 @@ enum State {
 	LOSE = 2,
 	CUTSCENE = 3,
 }
+
+interface VolumeConfig {
+	decibel: number,
+	volumeLevel:number
+}
 export class MainScene {
 	// called differentapi
 
@@ -197,6 +202,13 @@ export class MainScene {
 	public startSound!: Sound;
 	public userID: number = 0;
 
+
+	// volume config 
+
+
+
+	public volumeConfig: VolumeConfig[] = [];
+
 	private static readonly PLAYER_SPEED: number = 0.45;
 
 	private static readonly GRAVITY: number = -2.8; //how many frames the dash lasts
@@ -217,71 +229,84 @@ export class MainScene {
 	constructor(private canvas: HTMLCanvasElement) {
 
 		this.engine = new Engine(this.canvas, true);
-		
+
+
+		this.volumeConfigAction().then((responseData) => {
+			this.volumeConfig = responseData.data.data;
+		})
+		/* 
+		*  return random imps for the 
+		*/
 		this.randomImp().then((responseData) => {
-
-			console.log({responseData})
 			const imp = responseData.data.data;
-			console.log({imp})
-
 		this.impImage = `${process.env.VUE_APP_BACKEND_IMAGE_URL}/${imp.image}`;
 		});
 		this.randomImp()
-		this.datacalled().then((responseData) => { 
 
-		this.userGame = responseData.data.data;
-	
-		this.frequency = this.userGame.frequency;
-		this.volumeControl = this.userGame.soundLevel;
-		this.speed = this.userGame.speed;
-		this.earType = this.userGame.earSide === "left" ? -1 : 1;
-		this.score = this.userGame.coin;
-		this.scene = this.CreateScene();
-		this.scene.enablePhysics(
-			new Vector3(0, -9.81, 0),
-			new CannonJSPlugin(true, 10, CANNON),
-		);
-		this._setupPlayerCamera();
+		/* 
+		*
+	    *
+		*  return the user data if there is no user data game will not load or invalid barerr token
+		*/
+		this.datacalled().then((responseData) => {
 
-		// Set up Mobile Controls if on mobile device
+			this.userGame = responseData.data.data;
+			this.scene = this.CreateScene();
+			this.scene.enablePhysics(
+				new Vector3(0, -9.81, 0),
+				new CannonJSPlugin(true, 10, CANNON),
+			);
+			this._setupPlayerCamera();
 
-		//this._setUpMobile();
+			// Set up Mobile Controls if on mobile device
 
-		this.inputMap = {};
-		this.scene.actionManager.registerAction(
-			new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
-				this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-			}),
-		);
-		this.scene.actionManager.registerAction(
-			new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
-				this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-			}),
-		);
+			//this._setUpMobile();
 
-		this.engine.runRenderLoop(() => {
-			switch (this._state) {
-				case State.START:
-					this.scene.render();
-					break;
-				case State.CUTSCENE:
-					this.scene.render();
-					break;
-				case State.GAME:
-					this.scene.render();
-					break;
-				case State.LOSE:
-					this.scene.render();
-					break;
-				default:
-					break;
-			}
+			this.inputMap = {};
+			this.scene.actionManager.registerAction(
+				new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
+					this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+				}),
+			);
+			this.scene.actionManager.registerAction(
+				new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
+					this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+				}),
+			);
+
+			this.engine.runRenderLoop(() => {
+				switch (this._state) {
+					case State.START:
+						this.scene.render();
+						break;
+					case State.CUTSCENE:
+						this.scene.render();
+						break;
+					case State.GAME:
+						this.scene.render();
+						break;
+					case State.LOSE:
+						this.scene.render();
+						break;
+					default:
+						break;
+				}
+			});
+
+			window.addEventListener("resize", () => {
+				this.engine.resize();
+			});
 		});
 
-		window.addEventListener("resize", () => {
-			this.engine.resize();
-		});
-		})
+		/* 
+		*
+		* call the function to store data during th screan load
+		* 
+		*/
+
+		
+		this.lastPlayedGame()
+		
 		
 		setInterval(() => {
     		this.datacalled();
@@ -296,6 +321,19 @@ export class MainScene {
 		return data;
 	}
 
+	
+
+	/* 
+	*
+	* this function will store volume configuration on the public variable
+	* 
+	*/
+
+	async volumeConfigAction() {
+		const data = await axios.get('settings/decibel');
+		return data;
+	}
+
 
 	// get the response from user data
 	async datacalled() {
@@ -304,22 +342,24 @@ export class MainScene {
 				Authorization: "Bearer " + localStorage.getItem("token"),
 			},
 		});
-		console.log({ data });
 		this.userID = data?.data?.data?.userId;
 		this.frequency = data?.data?.data?.frequency
 		this.earType = data?.data?.data?.earSide === "left" ? -1 : 1;
+		this.volumeControl = data?.data?.data?.soundLevel;
+		this.speed = data?.data?.data?.speed;
+		this.score = data?.data?.data?.coin;
 		return data;
 	}
 
 
 	// update the user game status in the record
-	async updateUserGame(frequency: number, volume: number, earside: string, coin: number) {
+	async updateUserGame(frequency: number, volume: number, earSide: string, coin: number) {
 		axios.put(
 				"game/user/update",
 				{
 					frequency: frequency,
 					soundLevel: volume,
-					earside: earside,
+					earSide: earSide,
 					coin,
 				},
 				{
@@ -331,7 +371,14 @@ export class MainScene {
 	}
 
 	// update the sound testing frequency
-	async addSoundTesting(frequency: number, volume: number, isHeard: boolean, earside: string) {
+	async addSoundTesting(
+		frequency: number,
+		volume: number,
+		isHeard: boolean,
+		earside: string,
+		isThreshold?: boolean,
+		isLastPlay?:boolean
+	) {
 		await axios.post(
 			"sound-test/add",
 			{
@@ -339,6 +386,9 @@ export class MainScene {
 				soundLevel: volume,
 				isHeard,
 				earSide: earside,
+				isThreshold,
+				isLastPlay
+
 			},
 			{
 				headers: {
@@ -349,6 +399,39 @@ export class MainScene {
 		);
 	}
 
+		async updateSoundTesting(
+			{ isThreshold, isLastPlay, id }
+			: { isThreshold?: boolean; isLastPlay?: boolean; id: number; }) {
+		await axios.patch(
+			`sound-test/update/${id}`,
+			{
+				isThreshold,
+				isLastPlay
+			},
+			{
+				headers: {
+					Authorization:
+						"Bearer " + localStorage.getItem("token"),
+				},
+			},
+		);
+	}
+
+	/* 
+	*
+	* user last played game 
+	* 
+	*/
+
+		async lastPlayedGame() {
+		const data = await axios.get("game/user/get-last-play", {
+			headers: {
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+		});
+		
+		return data?.data?.data;
+	}
 
 	// create the scene for the game
 	CreateScene(): Scene {
@@ -472,7 +555,7 @@ export class MainScene {
 		// for visual test image display
 		const visulaTest = Button.CreateImageOnlyButton(
 			"visualtest",
-			this.impImage, //bibash image
+			this.impImage, // must used random imps
 		);
 		visulaTest.width = "48px";
 		visulaTest.height = "86px";
@@ -640,10 +723,10 @@ export class MainScene {
 							mesh.checkCollisions = false;
 						}
 						if (mesh.name.includes("colllision")) {
-							// console.log("bibash", mesh.name)
+							
 							mesh.checkCollisions = true;
 							mesh.isVisible = true;
-							// console.log("bibash", mesh.checkCollisions)
+							
 						}
 
 						// if (mesh.name == "objectdisplay") {
@@ -803,13 +886,35 @@ export class MainScene {
 
 					this._scoreDisplay.text = `Score: ${this.score}`;
 
+
+					/* 
+					*
+				   	* if the game and the object is loaded this update the player, keyword and control of the player
+					* 
+					*/
 					if (this.Loaded) {
 						this._updateFromKeyboard();
-
 						this._animatePlayer();
 						this._updateFromControls();
 					}
 
+					/* 
+					*
+					* this case will check wheather 
+					* the game is paused,
+					* frequency is playing 
+					* game is loaded  
+					* game is control
+					* hearing test
+					* visual test
+					*  
+					* @param e(1gamePaused && !FrequencyPlay && Loaded && !_mobileJump && this.soundCount != this.visualCount && hearingTest && !visualTest)
+					* 
+					* if all the condition matched then the system will play the frequency and after 8 
+					* second user will lose the game if the user doesnot click the button
+					* 
+					* 
+					*/
 					if (
 						!this.gamePaused &&
 						!this.FrequencyPlay &&
@@ -834,50 +939,75 @@ export class MainScene {
 						this._frequencyPlay = false;
 						this.hearingTest = false;
 						this.soundCount++;
-						setTimeout(() => {
+						setTimeout(async () => {
 							if (this._mobileJump) {
+								const lastGame = await this.lastPlayedGame()
+								const earside = this.earType === -1 ? "left" : "right";
+								this.score = this.score + 1;
+								if (!lastGame) {
+									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true)
+								}
+								else {
+									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
+									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true)
+								}
+								this.updateUserGame(this.frequency, this.volumeControl - 5, earside, this.score);
 								this.frequencyhear = true;
-								this.score = this.score - 0.5;
 								this.FrequencyPlay = false;
 								this.hearCount = this.hearCount + 1;
-								this.hearCount == 1 ? this.volumeControl = (this.volumeControl - 0.05) : "";
-								const earside = this.earType === -1 ? "left" : "right";
-								this.addSoundTesting(this.frequency, this.volumeControl, true, earside);
-								if(this.hearCount == 2){
-									if (this.frequency == 500 ) {
-										this.newFrequency = 1000;
-									}
-									if (this.frequency == 1000 ) {
-										this.newFrequency = 2000;
-									}
-									if (this.frequency == 2000) {
-										this.newFrequency = 4000;
-									}
-									if (this.frequency == 4000) {
-										this.newFrequency = 500;
-									}
-									this.updateUserGame(this.newFrequency, 0.2, earside, this.score)
-								}else{
-									this.updateUserGame(this.frequency, this.volumeControl, earside, this.score)
-								}
-									
-									
 							} else {
+								const lastGame = await this.lastPlayedGame()
 								this._soundControl = false;
 								this.lossSound.play();
 								this.lossGame = true;
+								let earSide = this.earType === -1 ? "left" : "right";
+								this.score = this.score - 0.5;
+								if (!lastGame) {
+									console.log('bibash1 no last game')
+									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
+									this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
+								}
+								else {
+									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
+									if (this.frequency === lastGame.frequency && lastGame.isHeard) {
+										console.log('bibash1 found threshold')
+										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false)
+										if (lastGame.frequency === 500) {
+											this.frequency = 1000
+										}
+										if (lastGame.frequency === 1000) {
+											this.frequency = 2000
+										}
+										if (lastGame.frequency === 2000) {
+											this.frequency = 4000
+										}
+										if (lastGame.frequency === 4000) {
+											this.frequency = 500
+											earSide = this.earType === 1 ? "left" : "right";
+										}
+										if (lastGame.frequency === 4000 && lastGame.earSide === 'right') {
+											this.gamePaused = true;
+											startBtn.isVisible = false;
+											window.open(`localhost:8080/user/${this.userID}`)
+										}
+										this.updateUserGame(this.frequency, 50, earSide, this.score);
+									}
+									else {
+										console.log('bibash1 yes last game')
+										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
+										this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
+									}
+									
+								}
+								
 								setTimeout(async () => {
 									this.lossSound.stop();
 									this.lossGame = false;
 									this.hearingTest = true;
 									this.lossCount++;
 									this.count = 0;
-									this.score = this.score - 0.5;
 									this.FrequencyPlay = false;
-									this.volumeControl = this.volumeControl + 0.10;
-									const earSide = this.earType === -1 ? "left" : "right";
-									this.updateUserGame(this.frequency, this.volumeControl, earSide, this.score);
-									this.addSoundTesting(this.frequency, this.volumeControl -  0.10, false, earSide)
+									
 								}, 4000);
 							}
 						}, 3000);
@@ -1141,47 +1271,29 @@ export class MainScene {
 	}
 
 	// frequency controll
-	private _playFrequency(): void {
-		if (this.lossCount > 0) {
-		}
-
-		if (this.frequencyhear && this.hearCount == 2 && this.frequency == 500) {
-			this.lossCount = 0;
-			this.hearCount = 0;
-			this.frequencyhear = false;
-			const earside = this.earType === -1 ? "left" : "right";
-			this.frequency = 1000;
-		}
-		if (this.frequencyhear && this.hearCount == 2 &&  this.frequency == 1000) {
-			this.lossCount = 0;
-			this.hearCount = 0;
-			this.frequencyhear = false;
-			const earside = this.earType === -1 ? "left" : "right";
-			this.frequency = 2000;
-		}
-		if (this.frequencyhear && this.hearCount == 2 && this.frequency == 2000) {
-			this.lossCount = 0;
-			this.hearCount = 0;
-			this.frequencyhear = false;
-			const earside = this.earType === -1 ? "left" : "right";
-			this.frequency = 4000;
-		}
-
-		if (this.frequency == 4000 && this.hearCount == 2 && this.frequency == 4000) {
-			this.hearCount = 0;
-			this.frequency = 500;
-			this.earType = this.earType == -1 ? 1 : -1;
-		}
+	private async _playFrequency() {
+		// if (this.lossCount > 0) {
+		// }
 		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 		const oscillator = audioCtx.createOscillator();
 		var gainNode = audioCtx.createGain();
 
 		const stereoNode = new StereoPannerNode(audioCtx, { pan: this.earType });
+		let volumeValue:number = 0.0001;
 
-		stereoNode.pan.value = this.earType;
-		oscillator.type = "sine"; // Set the waveform to a sine wave
-		oscillator.frequency.value = this.frequency; // Set the frequency to 400Hz
-		gainNode.gain.value = this.volumeControl;
+		await Promise.all(
+			this.volumeConfig?.map((item) => {
+			if (item.decibel === this.volumeControl) 
+				volumeValue = item.volumeLevel
+			})
+		)
+
+		
+			stereoNode.pan.value = this.earType;
+			oscillator.type = "sine"; // Set the waveform to a sine wave
+			oscillator.frequency.value = this.frequency; // Set the frequency to 400Hz
+			gainNode.gain.value = volumeValue
+		
 
 		// Connect the oscillator to the audio destination (speakers)
 		oscillator
@@ -1616,10 +1728,8 @@ export class MainScene {
 									this.winSound.play();
 									setTimeout(() => {
 										// this.activatePlayerCamera()
-										if(this.hearCount == 2 && this.earType === 1 && this.frequency === 4000){
-											window.open(`localhost:8080/user/${this.userID}`)
-											this.gamePaused = true;
-										}
+										
+										
 										this.hearingTest = true;
 										this.winSound.stop();
 										this.winGame = false;
