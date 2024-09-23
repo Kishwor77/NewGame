@@ -370,6 +370,30 @@ export class MainScene {
 			);
 	}
 
+	async createPhase(name:string) {
+	axios.post(
+			"settings/add-phase",
+			{
+				name,
+			},
+			{
+				headers: {
+					Authorization: "Bearer " + localStorage.getItem("token"),
+				},
+			},
+		);
+	}
+
+	async findPhase() {
+		const data = await axios.get("settings/last-phase", {
+			headers: {
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+		});
+		
+		return data?.data?.data;
+	}
+
 	// update the sound testing frequency
 	async addSoundTesting(
 		frequency: number,
@@ -399,7 +423,7 @@ export class MainScene {
 		);
 	}
 
-		async updateSoundTesting(
+	async updateSoundTesting(
 			{ isThreshold, isLastPlay, id }
 			: { isThreshold?: boolean; isLastPlay?: boolean; id: number; }) {
 		await axios.patch(
@@ -443,7 +467,9 @@ export class MainScene {
 
 		//  adding Gui menu
 
-		0;
+
+
+
 
 		const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 		this._playerUI = playerUI;
@@ -988,12 +1014,11 @@ export class MainScene {
 										if (lastGame.frequency === 4000 && lastGame.earSide === 'right') {
 											this.gamePaused = true;
 											startBtn.isVisible = false;
-											window.open(`localhost:8080/user/${this.userID}`)
+											window.open(`${process.env.VUE_APP_FRONTEND_URL}/user/${this.userID}`)
 										}
 										this.updateUserGame(this.frequency, 50, earSide, this.score);
 									}
 									else {
-										console.log('bibash1 yes last game')
 										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
 										this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
 									}

@@ -100,3 +100,21 @@ export const soundTesting = async (id:number) => {
 			: error;
 	}
 }
+
+
+export const gamePhase = async () => {
+	try {
+		const result = await axios.get(`/settings/get-phase`, {
+			headers: {
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+		});
+		return result;
+	} catch (error: any) {
+		return error.response
+			? error.response.data.message
+			: error.message
+			? error.message
+			: error;
+	}
+}

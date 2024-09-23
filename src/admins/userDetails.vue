@@ -178,7 +178,19 @@
 		</div>
 		<div>
 			<div class="table-container">
-				<h1>User Game Records Table</h1>
+				<div class="flex flex-col gap-4  sticky top-0 bg-gray-200 py-2">
+					<h1>User Game Records Table</h1>
+					<div class="flex gap-8 ">
+						<button
+						v-for="category in categories"
+						:key="category"
+						v-bind:class = "(selectedCategory === category)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
+						@click="fetchData(category)"
+					>
+						{{ category.name }}
+					</button>
+					</div>	
+				</div>
 				<table class="records-table">
 				<thead>
 					<tr>
@@ -190,7 +202,7 @@
 					<!-- Add more headers as needed -->
 					</tr>
 				</thead>
-				<tbody>
+				<tbody v-if="soundData">
 					<tr v-for="record in soundData" :key="record.id">
 					<!-- <td>{{ record.id }}</td> -->
 					<td>{{ record.soundLevel.toFixed(2) }}</td>
@@ -208,13 +220,25 @@
 <style>
 .table-container {
   width: 80%;
-  margin: 20px auto;
+  /* margin: 20px auto; */
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .records-table {
   width: 100%;
   border-collapse: collapse;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+thead th {
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  top: 20%;
+  background-color: #f2f2f2;
+  z-index: 1; /* Ensures the header is above the table rows */
+  border-bottom: 2px solid #ddd;
 }
 
 .records-table th, .records-table td {
@@ -241,7 +265,7 @@
 import { defineComponent } from "vue";
 import BarChart from "./BarChart.vue";
 import { useToast } from "vue-toastification";
-import { getUserDetails, soundTesting, updateUserConfig, getVolumeLevelList } from "@/action/user";
+import { getUserDetails, soundTesting, updateUserConfig, getVolumeLevelList, gamePhase } from "@/action/user";
 import { toInteger } from "lodash";
 const defaultForm = {
 	earSide: "",
@@ -263,8 +287,10 @@ export default defineComponent({
 	},
 	data() {
 		return {
+			selectedPhase: 0,
 			items:[] as any,
 			childDataLoaded: false,
+			loading: false,
 			labels : [],
 			leftData: [],
 			rightData:[],
@@ -290,11 +316,15 @@ export default defineComponent({
 			gameConfig: {
 				...defaultForm,
 			},
+			gamePhaseList: {
+				id: 0, 
+				name: '',
+			}
 		};
 	},
 	methods: {
 
-		triggerToast(message:string) {
+		triggerToast(message: string) {
 			this.toast(message, {
 				// position: "top-right",
 				timeout: 2000,
@@ -308,13 +338,11 @@ export default defineComponent({
 				closeButton: "button",
 				icon: "fas fa-rocket",
 				rtl: false
-				
+
 			});
 		},
 		async getUserDetails() {
 			const result = await getUserDetails(toInteger(this.component));
-
-			
 			this.userdetails = result?.data.data;
 			this.gameConfig.frequency = this.userdetails.game[0].frequency;
 			this.gameConfig.earSide = this.userdetails.game[0].earSide;
@@ -322,14 +350,14 @@ export default defineComponent({
 			this.gameConfig.speed = this.userdetails.game[0].speed;
 
 			const results = await soundTesting(parseInt(this.component));
-			const datas= results?.data?.data
+			const datas = results?.data?.data
 			this.soundData = datas;
-			const heardLeft = datas?.filter((item:any) => item.isThreshold && item.earSide === 'left');
-			const heardRight = datas?.filter((item:any) => item.isThreshold && item.earSide === 'right');
-	
-			
+			const heardLeft = datas?.filter((item: any) => item.isThreshold && item.earSide === 'left');
+			const heardRight = datas?.filter((item: any) => item.isThreshold && item.earSide === 'right');
+
+
 			this.labels = heardLeft?.map((item: any) => item.frequency) as any;
-			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
+			this.leftData = heardLeft?.map((item: any) => item.soundLevel) as any;
 			this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;
 			this.childDataLoaded = true
 		},
@@ -369,15 +397,25 @@ export default defineComponent({
 					parseFloat(this.gameConfig.soundLevel),
 					parseFloat(this.gameConfig.speed),
 					this.gameConfig.earSide,
-					
+
 				);
 				this.triggerToast(result.data.msg)
 			}
 		},
 
-		isActive(active:boolean) {
+		async getGamePhase() {
+			const result = await gamePhase();
+			this.gamePhaseList = result?.data.data;
+			this.selectedPhase = result?.data.data[0]?.id
+		},
+		async fetchData(category:number) { 
+			this.selectedPhase = category;
+			this.loading = true;
+		},
+		isActive(active: boolean) {
 			return active ? 'Yes' : 'No';
-      }
+
+		},
 	},
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
