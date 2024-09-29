@@ -102,6 +102,7 @@ const routes = [
 		title: "admin",
 		meta: {
 			icon: HomeIcon,
+			role: "admin",
 		},
 	},
 	{
@@ -111,6 +112,7 @@ const routes = [
 		title: "users",
 		meta: {
 			icon: UserIcon,
+			role: "admin",
 		},
 	},
 	{
@@ -118,6 +120,10 @@ const routes = [
 		component: Admin,
 		path: "/admin/details/:id",
 		title: "admin",
+		meta: {
+			// icon: HomeIcon,
+			role: "admin",
+		},
 	},
 	{
 		name: "Settings",
@@ -126,6 +132,7 @@ const routes = [
 		title: "settings",
 		meta: {
 			icon: AdjustmentsIcon,
+			role: "admin",
 		},
 
 		children: [

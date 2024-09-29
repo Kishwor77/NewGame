@@ -371,7 +371,7 @@ export class MainScene {
 	}
 
 	async createPhase(name:string) {
-	axios.post(
+		axios.post(
 			"settings/add-phase",
 			{
 				name,
@@ -401,7 +401,8 @@ export class MainScene {
 		isHeard: boolean,
 		earside: string,
 		isThreshold?: boolean,
-		isLastPlay?:boolean
+		isLastPlay?: boolean,
+		phaseId?:number
 	) {
 		await axios.post(
 			"sound-test/add",
@@ -411,7 +412,8 @@ export class MainScene {
 				isHeard,
 				earSide: earside,
 				isThreshold,
-				isLastPlay
+				isLastPlay,
+				phaseId
 
 			},
 			{
@@ -966,16 +968,17 @@ export class MainScene {
 						this.hearingTest = false;
 						this.soundCount++;
 						setTimeout(async () => {
+							const phaseData = await this.findPhase()
 							if (this._mobileJump) {
 								const lastGame = await this.lastPlayedGame()
 								const earside = this.earType === -1 ? "left" : "right";
 								this.score = this.score + 1;
 								if (!lastGame) {
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true)
+									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true,phaseData[0].id )
 								}
 								else {
 									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true)
+									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true, phaseData[0].id)
 								}
 								this.updateUserGame(this.frequency, this.volumeControl - 5, earside, this.score);
 								this.frequencyhear = true;
@@ -990,14 +993,14 @@ export class MainScene {
 								this.score = this.score - 0.5;
 								if (!lastGame) {
 									console.log('bibash1 no last game')
-									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
+									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true, phaseData[0].id)
 									this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
 								}
 								else {
 									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
 									if (this.frequency === lastGame.frequency && lastGame.isHeard) {
 										console.log('bibash1 found threshold')
-										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false)
+										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false, phaseData[0].id)
 										if (lastGame.frequency === 500) {
 											this.frequency = 1000
 										}
@@ -1015,6 +1018,26 @@ export class MainScene {
 											this.gamePaused = true;
 											startBtn.isVisible = false;
 											window.open(`${process.env.VUE_APP_FRONTEND_URL}/user/${this.userID}`)
+											let phaseName = 'Second';
+									
+											if (phaseData[0].name === 'First') {
+												phaseName = 'Second'
+											}else if (phaseData[0].name === 'Second') {
+												phaseName = 'Third'
+											}else if (phaseData[0].name === 'Third') {
+												phaseName = 'Fourth'
+											}
+											else if (phaseData[0].name === 'Fourth') {
+												phaseName = 'Fifth'
+											}
+											else if (phaseData[0].name === 'Fifth') {
+												phaseName = 'Sixth'
+											}
+											else if (phaseData[0].name === 'Sixth') {
+												phaseName = 'Seventh'
+											}
+												
+											this.createPhase(phaseName)
 										}
 										this.updateUserGame(this.frequency, 50, earSide, this.score);
 									}

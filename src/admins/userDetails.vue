@@ -182,12 +182,12 @@
 					<h1>User Game Records Table</h1>
 					<div class="flex gap-8 ">
 						<button
-						v-for="category in categories"
-						:key="category"
-						v-bind:class = "(selectedCategory === category)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
-						@click="fetchData(category)"
+						v-for="phase in gamePhaseList as any"
+						:key="phase"
+						v-bind:class = "(selectedPhase === phase?.id)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
+						@click="fetchData(phase?.id)"
 					>
-						{{ category.name }}
+						{{ phase?.name }}
 					</button>
 					</div>	
 				</div>
@@ -405,6 +405,7 @@ export default defineComponent({
 
 		async getGamePhase() {
 			const result = await gamePhase();
+			console.log("bibash111",{result})
 			this.gamePhaseList = result?.data.data;
 			this.selectedPhase = result?.data.data[0]?.id
 		},
@@ -422,7 +423,8 @@ export default defineComponent({
 	mounted() {
 		this.component = window.location.pathname.split("/")[3];
 		this.getUserDetails();
-		this.getVolumeLeve()
+		this.getVolumeLeve();
+		this.getGamePhase();
 	},
 	async created() {
 			const results = await soundTesting(parseInt(this.component));

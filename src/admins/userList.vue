@@ -198,6 +198,11 @@ export default defineComponent({
 			console.log({ result })
 			if (result?.data?.statusCode !== 200 || !result?.data) {
 				this.triggerToast(result)
+				if (result?.data?.statusCode !== 401) {
+					window.localStorage.removeItem('token')
+					window.localStorage.removeItem('currentUser')
+					
+				}
 			}
 			else {
 				this.userdetails = result?.data.data;
