@@ -27,7 +27,6 @@
 				</button>
 				<div>
 					<span
-						
 						id="dropdownbtn"
 						class="relative hover:bg-blue-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 						type="button"
@@ -128,10 +127,17 @@
 						<div>
 							<div class="font-semibold">Sound Level</div>
 
-							<select name="soundLevel" id="soundLevel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" v-model="gameConfig.soundLevel" >
-								<option v-for="item in items"
-										v-bind:value="item.decibel"
-										:selected="item?.decibel === gameConfig.soundLevel ? true : false">
+							<select
+								name="soundLevel"
+								id="soundLevel"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+								v-model="gameConfig.soundLevel"
+							>
+								<option
+									v-for="item in items"
+									v-bind:value="item.decibel"
+									:selected="item?.decibel === gameConfig.soundLevel ? true : false"
+								>
 									<span :key="item.id">
 										{{item?.decibel}}
 									</span>
@@ -152,7 +158,7 @@
 							<div
 								class="bg-green-800 p-2 justify-center items-center rounded-md hover:bg-green-600"
 							>
-								<input type="submit"  value="Save" />
+								<input type="submit" value="Save" />
 							</div>
 						</div>
 					</div>
@@ -162,19 +168,17 @@
 				<div class="font-bold">
 					<h2>Sound Test</h2>
 				</div>
-				<div class="flex justify-between p-4">
-				</div>
+				<div class="flex justify-between p-4"></div>
 			</div>
 			<div class="flex flex-col h-20">
 				<div class="font-bold">
 					<h2>Graph</h2>
 
 					<div class="h-40" v-if="childDataLoaded">
-						<BarChart  :label="labels" :left="leftData" :right="rightData" />
+						<BarChart :label="labels" :left="leftData" :right="rightData" />
 					</div>
 				</div>
 			</div>
-			
 		</div>
 		<div>
 			<div class="table-container">
@@ -182,36 +186,36 @@
 					<h1>User Game Records Table</h1>
 					<div class="flex gap-8 ">
 						<button
-						v-for="phase in gamePhaseList as any"
-						:key="phase"
-						v-bind:class = "(selectedPhase === phase?.id)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
-						@click="fetchData(phase?.id)"
-					>
-						{{ phase?.name }}
-					</button>
-					</div>	
+							v-for="phase in gamePhaseList as any"
+							:key="phase"
+							v-bind:class="(selectedPhase === phase?.id)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
+							@click="fetchData(phase?.id)"
+						>
+							{{ phase?.name }}
+						</button>
+					</div>
 				</div>
 				<table class="records-table">
-				<thead>
-					<tr>
-					<!-- <th>ID</th> -->
-					<th>Sound Level</th>
-					<th>Frequency</th>
-					<th>Ear Side</th>
-					<th>Sound Heard</th>
-					<!-- Add more headers as needed -->
-					</tr>
-				</thead>
-				<tbody v-if="soundData">
-					<tr v-for="record in soundData" :key="record.id">
-					<!-- <td>{{ record.id }}</td> -->
-					<td>{{ record.soundLevel.toFixed(2) }}</td>
-					<td>{{ record.frequency }}</td>
-					<td>{{ record.earSide }}</td>
-					<td>{{ isActive(record.isHeard) }}</td>
-					<!-- Add more columns as needed -->
-					</tr>
-				</tbody>
+					<thead>
+						<tr>
+							<!-- <th>ID</th> -->
+							<th>Sound Level</th>
+							<th>Frequency</th>
+							<th>Ear Side</th>
+							<th>Sound Heard</th>
+							<!-- Add more headers as needed -->
+						</tr>
+					</thead>
+					<tbody v-if="soundData">
+						<tr v-for="record in soundData" :key="record.id">
+							<!-- <td>{{ record.id }}</td> -->
+							<td>{{ record.soundLevel.toFixed(2) }}</td>
+							<td>{{ record.frequency }}</td>
+							<td>{{ record.earSide }}</td>
+							<td>{{ isActive(record.isHeard) }}</td>
+							<!-- Add more columns as needed -->
+						</tr>
+					</tbody>
 				</table>
 			</div>
 		</div>
@@ -259,14 +263,13 @@ thead th {
 .records-table tbody tr:hover {
   background-color: #e9e9e9;
 }
-
 </style>
 <script lang="ts">
 import { defineComponent } from "vue";
 import BarChart from "./BarChart.vue";
-import { useToast } from "vue-toastification";
 import { getUserDetails, soundTesting, updateUserConfig, getVolumeLevelList, gamePhase } from "@/action/user";
 import { toInteger } from "lodash";
+import { toast } from 'vue3-toastify';
 const defaultForm = {
 	earSide: "",
 	frequency: "",
@@ -277,13 +280,7 @@ export default defineComponent({
 	name: "UserList",
 	props: ["user"],
 	components: {
-	BarChart	
-	},
-
-	setup() {
-		
-		const toast = useToast();
-   return { toast }
+	BarChart
 	},
 	data() {
 		return {
@@ -317,30 +314,30 @@ export default defineComponent({
 				...defaultForm,
 			},
 			gamePhaseList: {
-				id: 0, 
+				id: 0,
 				name: '',
 			}
 		};
 	},
 	methods: {
 
-		triggerToast(message: string) {
-			this.toast(message, {
-				// position: "top-right",
-				timeout: 2000,
-				closeOnClick: true,
-				pauseOnFocusLoss: true,
-				pauseOnHover: true,
-				draggable: true,
-				draggablePercent: 0.6,
-				showCloseButtonOnHover: false,
-				hideProgressBar: true,
-				closeButton: "button",
-				icon: "fas fa-rocket",
-				rtl: false
+		// triggerToast(message: string) {
+		// 	this.toast(message, {
+		// 		// position: "top-right",
+		// 		timeout: 2000,
+		// 		closeOnClick: true,
+		// 		pauseOnFocusLoss: true,
+		// 		pauseOnHover: true,
+		// 		draggable: true,
+		// 		draggablePercent: 0.6,
+		// 		showCloseButtonOnHover: false,
+		// 		hideProgressBar: true,
+		// 		closeButton: "button",
+		// 		icon: "fas fa-rocket",
+		// 		rtl: false
 
-			});
-		},
+		// 	});
+		// },
 		async getUserDetails() {
 			const result = await getUserDetails(toInteger(this.component));
 			this.userdetails = result?.data.data;
@@ -399,17 +396,16 @@ export default defineComponent({
 					this.gameConfig.earSide,
 
 				);
-				this.triggerToast(result.data.msg)
+				toast.success(result.data.msg)
 			}
 		},
 
 		async getGamePhase() {
 			const result = await gamePhase();
-			console.log("bibash111",{result})
 			this.gamePhaseList = result?.data.data;
 			this.selectedPhase = result?.data.data[0]?.id
 		},
-		async fetchData(category:number) { 
+		async fetchData(category:number) {
 			this.selectedPhase = category;
 			this.loading = true;
 		},
@@ -429,11 +425,10 @@ export default defineComponent({
 	async created() {
 			const results = await soundTesting(parseInt(this.component));
 			const datas= results?.data?.data
-		
+
 			const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
 			const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
-			console.log("bibash2", { heardLeft });
-			
+
 			this.labels = heardLeft?.map((item: any) => item.frequency) as any;
 			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
 			this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;

@@ -40,10 +40,7 @@
 						v-show="upHere"
 						class="z-10 bg-gray-300 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute"
 					>
-						<ul
-							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							
-						>
+						<ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
 							<li>
 								<a
 									href="/login"
@@ -172,24 +169,20 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { userList } from "@/action/user";
-import { useToast } from "vue-toastification";
 import { users } from "./interface/user.interface";
-import {removeToken} from '../utils/authData'
+import { removeToken } from '../utils/authData'
+import { toast } from 'vue3-toastify';
 export default defineComponent({
 	name: "UserList",
 	props: ["user"],
 	components: {},
 
-	setup() {
-		const toast = useToast();
-	return { toast }
-	},
 	data() {
 		return {
 			userdetails: [] as users[],
 			upHere: false,
 			removeToken,
-			
+
 		};
 	},
 	methods: {
@@ -197,36 +190,36 @@ export default defineComponent({
 			const result = await userList();
 			console.log({ result })
 			if (result?.data?.statusCode !== 200 || !result?.data) {
-				this.triggerToast(result)
-				if (result?.data?.statusCode !== 401) {
+				toast.error(result)
+				if (result?.data?.statusCode === 401) {
 					window.localStorage.removeItem('token')
 					window.localStorage.removeItem('currentUser')
-					
+
 				}
 			}
 			else {
 				this.userdetails = result?.data.data;
-				
+
 			}
 		},
 
-		triggerToast(message:string) {
-			this.toast(message, {
-				// position: "top-right",
-				timeout: 2000,
-				closeOnClick: true,
-				pauseOnFocusLoss: true,
-				pauseOnHover: true,
-				draggable: true,
-				draggablePercent: 0.6,
-				showCloseButtonOnHover: false,
-				hideProgressBar: true,
-				closeButton: "button",
-				icon: "fas fa-rocket",
-				rtl: false
-				
-			});
-		},
+		// triggerToast(message:string) {
+		// 	toast(message, {
+		// 		// position: "top-right",
+		// 		timeout: 2000,
+		// 		closeOnClick: true,
+		// 		pauseOnFocusLoss: true,
+		// 		pauseOnHover: true,
+		// 		draggable: true,
+		// 		draggablePercent: 0.6,
+		// 		showCloseButtonOnHover: false,
+		// 		hideProgressBar: true,
+		// 		closeButton: "button",
+		// 		icon: "fas fa-rocket",
+		// 		rtl: false
+
+		// 	});
+		// },
 	},
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	mounted() {

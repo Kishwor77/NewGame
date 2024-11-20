@@ -1,10 +1,10 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
-import Toast from 'vue-toastification'
-import 'vue-toastification/dist/index.css'
 import "./axios";
 import router from "./router";
+import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
+
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -20,7 +20,9 @@ library.add(faUserSecret,faStar)
 createApp(App)
     .component('font-awesome-icon', FontAwesomeIcon)
     .use(router)
-    .use(Toast)
+    .use(Vue3Toastify, {
+      autoClose: 3000,
+    } as ToastContainerOptions)
     .mount("#app");
 
 // const createNewApp = () => {

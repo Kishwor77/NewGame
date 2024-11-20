@@ -1,9 +1,9 @@
 <template>
 	<div class="flex flex-col min-h-screen justify-between">
 		<NavBar></NavBar>
-		<main class="flex justify-center -mt-80">
+		<main class="flex justify-center ">
 			<div
-				class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 lg:w-1/4"
+				class="flex min-h-full flex-col justify-center px-6  lg:px-8 lg:w-1/4"
 			>
 				<div class="sm:mx-auto sm:w-full sm:max-w-sm">
 					<img
@@ -19,12 +19,6 @@
 				</div>
 
 				<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-					<div
-						class="h-10 shadow flex justify-center items-center text-red-500"
-						v-if="errorMsg !== ''"
-					>
-						{{ errorMsg }}
-					</div>
 					<form class="space-y-6 w-full" @submit.prevent="signupHandaler">
 						<div>
 							<label
@@ -110,36 +104,40 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/footer.vue";
 import { signup } from "@/action/auth";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+import { useRouter } from 'vue-router';
 export default defineComponent ({
 	name: "SignUp",
 	components: {
 		NavBar,
 		Footer,
 	},
+	setup() {
+		const router = useRouter();
+		return { router };
+	},
 	data() {
 		return {
 			name: "",
 			email: "",
 			password: "",
-			errorMsg: "",
 		};
 	},
+
 	methods: {
 		async signupHandaler() {
-			const reuslt = await signup(this.name, this.email, this.password);
-			if (reuslt?.response?.data.statusCode === 400) {
-				console.log("bibash");
-				this.errorMsg = reuslt?.response?.data.message;
-			} else if (reuslt?.response?.data.statusCode == 500) {
-				this.errorMsg = reuslt?.response?.data.message;
-			}
-			if (reuslt?.response?.data.statusCode === 200) {
-				window.history.pushState(null, '/login');
-				// window.history.push("/login");
+			const result = await signup(this.name, this.email, this.password);
+			if (result?.data?.statusCode === 200) {
+				toast.success(result?.data?.msg || 'Register SuccessFull')
+				this.router.push('/login');
+			} else {
+				toast.error(result || 'An error occurred', {
+					position: toast.POSITION.TOP_RIGHT,
+				});
 			}
 		},
 	},

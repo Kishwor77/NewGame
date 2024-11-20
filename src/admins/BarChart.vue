@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
-  <Line :data=chartData  />
+	<Line :data="chartData" />
 </template>
 
-<script lang=ts>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import {
   Chart as ChartJS,
@@ -45,7 +45,7 @@ export default defineComponent({
   },
 
 
-  
+
 	data() {
 		console.log(this.label, "label");
 
@@ -118,11 +118,11 @@ export default defineComponent({
 	// 	const results = await soundTesting(parseInt(id));
 	// 		console.log("bibash2",results?.data?.data)
 	// 		datas= results?.data?.data
-       
+
 	// 	const heardLeft = datas?.filter((item:any) => item.isHeard && item.earSide === 'left');
 	// 	const heardRight = datas?.filter((item:any) => item.isHeard && item.earSide === 'right');
 	// 	console.log("bibash2", { heardLeft });
-		
+
 	// 	this.chartData.labels = heardLeft?.map((item: any) => item.frequency) as any;
 	// 	this.chartData.datasets[0].data = heardLeft?.map((item: any) => item.soundLevel)  as any;
 	// 	this.chartData.datasets[1].data = heardRight?.map((item: any) => item.soundLevel) as any;
@@ -130,7 +130,7 @@ export default defineComponent({
 
 
 	}
-  
+
 // 	async beforeCreate() {
 // 	console.log("newTEST",window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2])
 // 	this.component = window.location.pathname.split("/")[3]?window.location.pathname.split("/")[3] :window.location.pathname.split("/")[2];
@@ -140,7 +140,6 @@ export default defineComponent({
 // 		console.log("bibash2",results?.data?.data)
 // 		datas = results?.data?.data
 //   }
-  
+
 });
 </script>
-

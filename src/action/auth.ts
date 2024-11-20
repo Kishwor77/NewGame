@@ -95,8 +95,6 @@ export const getUser = async () => {
 		localStorage.removeItem("currentUser");
 
 		localStorage.setItem("currentUser", JSON.stringify(result.data.data));
-
-		console.log("abc", result);
 		return result;
 	} catch (error: any) {
 		return error.response

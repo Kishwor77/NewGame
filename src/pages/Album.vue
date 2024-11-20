@@ -155,7 +155,7 @@ export default defineComponent({
 }
 main {
 	grid-area: main;
-	min-height: 100vh;
+	min-height: 90vh;
 }
 .item2 {
 	grid-area: footer;

@@ -9,7 +9,7 @@
 					<span class="sr-only">Your Company</span>
 					<img
 						class="h-8 w-auto"
-						src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+						src="#"
 						alt=""
 					/>
 				</a>
@@ -18,17 +18,9 @@
 			<div class="items-center">
 				<div class="flex justify-around">
 					<div class="flex-auto pr-10">
-						<a href="/" class="text-sm font-semibold leading-6 text-gray-900"
+						<a href="/" class="text-sm font-semibold leading-6 text-gray-900 cursor-pointer"
 							>Home</a
 						>
-
-						<!-- <div>
-							{{
-								currentUrl.split("/")[currentUrl.split("/").length - 1] == ""
-									? "bibash"
-									: ""
-							}}
-						</div> -->
 					</div>
 					<div class="flex-auto pr-10" v-if="!user">
 						<a
@@ -85,11 +77,6 @@ import { defineComponent } from "vue";
 import {removeToken} from '../utils/authData'
 export default defineComponent({
 	name: "NavBar",
-	// mounted() {
-	// 	const canvas = document.querySelector("canvas")!;
-
-	// 	new MainScene(canvas);
-	// },
 	props: ["user"],
 	abc: {
 	upHere: false

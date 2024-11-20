@@ -7,43 +7,32 @@ const router: Router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-	// const store = useStore();
-	// store.dashboard.setIsSBOpen(false);
 	const currentUser =
 		JSON.parse(localStorage?.getItem("currentUser") || "{}") || null;
-	if (currentUser?.role && (to.path == "/login")) {
+
+	// Admin login redirect
+	if (currentUser?.role && to.path == "/login") {
 		if (currentUser?.role == "admin") {
 			return next({ path: "/admin" });
 		} else {
 			return next({ name: "HomePage" });
 		}
-	} else if (to.meta.role == "admin") {
-		if (currentUser?.role != "admin" && to.path == "/admin") {
-			console.log("path001", to.path, currentUser?.role);
+	}
+	// Admin route protection
+	else if (to.meta.role == "admin") {
+		if (currentUser?.role != "admin") {
 			return next({ path: "/login" });
-		} else if (currentUser?.role == "admin" && to.path == "/login") {
-			return next({ path: "admin" });
 		}
-		// else if () {
-		// 	return next({path:'/login'})
-		// }
 	}
-	// else if (currentUser?.role == "admin" && to.path !== "/admin") {
-	// 	console.log("bibash test")
-	// 	return next({ path: "/admin" });
-	// }
-	else {
-		if (to.matched.some((record) => record.meta.auth)) {
-			if (!currentUser) {
-				next({ path: "/login" });
-			} else {
-				console.log("bibash");
-				next({ path: "/" });
-			}
+	// Auth route protection
+	else if (to.matched.some((record) => record.meta.auth)) {
+		if (!currentUser) {
+			return next({ path: "/login" });
+		} else if (currentUser?.role != "admin") {
+			return next({ path: "/" });
+		}
+	}
 
-			next();
-		}
-	}
 	next();
 });
 

@@ -992,14 +992,12 @@ export class MainScene {
 								let earSide = this.earType === -1 ? "left" : "right";
 								this.score = this.score - 0.5;
 								if (!lastGame) {
-									console.log('bibash1 no last game')
 									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true, phaseData[0].id)
 									this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
 								}
 								else {
 									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
 									if (this.frequency === lastGame.frequency && lastGame.isHeard) {
-										console.log('bibash1 found threshold')
 										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false, phaseData[0].id)
 										if (lastGame.frequency === 500) {
 											this.frequency = 1000

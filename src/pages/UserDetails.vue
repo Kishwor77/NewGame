@@ -1,11 +1,11 @@
 <template>
-    <div class="grid-container">
-    <NavBar class="item1" :user="user"> </NavBar>
+	<div class="grid-container">
+		<NavBar class="item1" :user="user"> </NavBar>
 
-    <main>
-        <div class="container m-auto flex flex-start h-full flex-col gap-8">
-           <div class="flex gap-4">
-            <!-- <div class="">
+		<main>
+			<div class="container m-auto flex flex-start h-full flex-col gap-8">
+				<div class="flex gap-4">
+					<!-- <div class="">
                 General Info
             </div>
             <div>
@@ -14,46 +14,78 @@
             <div>
                 Settings
             </div> -->
-           </div>
-           <!-- <TabsView>
+				</div>
+				<!-- <TabsView>
                 <TabView name="GeneralInfo" :selected="true"> -->
-                    <div class="flex gap-4">
-                        <div class="flex flex-col">
-                            <label class="text-[24] font-bold" >
-                                Full Name
-                            </label>
-                            {{ user?.fullName }}
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-[24] font-bold" >
-                            Email
-                            </label>
-                            {{ user?.email }}
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-[24] font-bold" >
-                            Status
-                            </label>
-                            {{ user?.isActivated == false ? "Inactive" :"Active" }}
-                        </div>
-                    </div>
-                <!-- </TabView>
+				<div class="flex gap-4">
+					<div class="flex flex-col">
+						<label class="text-[24] font-bold"> Full Name </label>
+						{{ user?.fullName }}
+					</div>
+					<div class="flex flex-col">
+						<label class="text-[24] font-bold"> Email </label>
+						{{ user?.email }}
+					</div>
+					<div class="flex flex-col">
+						<label class="text-[24] font-bold"> Status </label>
+						{{ user?.isActivated == false ? "Inactive" :"Active" }}
+					</div>
+				</div>
+				<!-- </TabView>
                 <TabView name="GameInfo" :selected="true"> -->
-                    <div class="flex flex-col h-20">
-                        <div class="font-bold">
-                            <h2>Graph</h2>
+				<div class="flex flex-col h-20">
+					<div class="font-bold">
+						<h2>Graph</h2>
 
-                            <div class="h-40" v-if="childDataLoaded">
-                                <BarChart  :label="labels" :left="leftData" :right="rightData"/>
-                            </div>
-                        </div>
-                    </div>
-                <!-- </TabView>
+						<div class="h-40" v-if="childDataLoaded">
+							<BarChart :label="labels" :left="leftData" :right="rightData" />
+						</div>
+					</div>
+				</div>
+				<!-- </TabView>
            </TabsView> -->
-        </div>
-    </main>
-    <Footer class="item2"></Footer>
-    </div>
+				<div class="table-container">
+						<div class="flex flex-col gap-4  sticky top-0 bg-gray-200 py-2">
+							<h1>User Game Records Table</h1>
+							<div class="flex gap-8 ">
+								<button
+									v-for="phase in gamePhaseList as any"
+									:key="phase"
+									v-bind:class="(selectedPhase === phase?.id)?'bg-green-500 rounded-md px-4':'bg-gray-300 rounded-md px-4 hover:bg-green-200'"
+									@click="fetchData(phase?.id)"
+								>
+									{{ phase?.name }}
+								</button>
+							</div>
+						</div>
+						<table class="records-table">
+							<thead>
+								<tr>
+									<!-- <th>ID</th> -->
+									<th>Sound Level</th>
+									<th>Frequency</th>
+									<th>Ear Side</th>
+									<th>Sound Heard</th>
+									<!-- Add more headers as needed -->
+								</tr>
+							</thead>
+							<tbody v-if="soundData">
+								<tr v-for="record in soundData" :key="record.id">
+									<!-- <td>{{ record.id }}</td> -->
+									<td>{{ record.soundLevel.toFixed(2) }}</td>
+									<td>{{ record.frequency }}</td>
+									<td>{{ record.earSide }}</td>
+									<td>{{ isActive(record.isHeard) }}</td>
+									<!-- Add more columns as needed -->
+								</tr>
+							</tbody>
+						</table>
+				</div>
+			</div>
+			
+		</main>
+		<Footer class="item2"></Footer>
+	</div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
@@ -74,9 +106,11 @@ export default defineComponent({
 
 	},
     data() {
-          
-        return {
-            childDataLoaded: false,
+
+		return {
+			selectedPhase: 0,
+			childDataLoaded: false,
+			loading: false,
             labels : [],
 			leftData: [],
 			rightData:[],
@@ -89,15 +123,28 @@ export default defineComponent({
                     isUnlocked: '',
                     starRequired: ''
 				}
-            ],
+			],
+			soundData:[] as any,
 			id: '',
 			errorMsg: '',
 			clickId: '',
 			usedImp: '',
-			coin: ''
+			coin: '',
+			gamePhaseList: {
+				id: 0,
+				name: '',
+			}
 		};
 	},
 	methods: {
+		isActive(active: boolean) {
+			return active ? 'Yes' : 'No';
+
+		},
+		async fetchData(category:number) {
+			this.selectedPhase = category;
+			this.loading = true;
+		},
 		async impList() {
 			const imp = await impList();
 			this.imps = imp.data?.data;
@@ -106,16 +153,15 @@ export default defineComponent({
 
             const results = await soundTesting(parseInt(this.id));
 			const datas= results?.data?.data
-       
+
 			const heardLeft = datas?.filter((item:any) => item.isThreshold && item.earSide === 'left');
 			const heardRight = datas?.filter((item:any) => item.isThreshold && item.earSide === 'right');
-			console.log("bibash2", { heardLeft });
-			
+
 			this.labels = heardLeft?.map((item: any) => item.frequency) as any;
 			this.leftData = heardLeft?.map((item: any) => item.soundLevel)  as any;
             this.rightData = heardRight?.map((item: any) => item.soundLevel) as any;
             this.childDataLoaded = true
-		
+
 		},
 		async unlockImp(id: string) {
 			this.clickId = id;
@@ -143,7 +189,7 @@ export default defineComponent({
 			this.usedImp = result.data?.data?.impUse;
 			this.coin = result.data?.data?.coin;
 
-			
+
 		}
 	},
 	mounted() {
@@ -160,4 +206,5 @@ export default defineComponent({
 		"main main main main main main"
 		"footer footer footer footer  footer footer";
 	gap: 10px;
-}</style>
+}
+</style>

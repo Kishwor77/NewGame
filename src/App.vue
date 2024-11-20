@@ -21,8 +21,6 @@ export default defineComponent({
 				result = await getUser();
 			}
 
-			console.log("result", result);
-
 			if (result?.data) {
 				if (result.data.statusCode == 200) {
 					this.user = result.data.data;

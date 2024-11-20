@@ -2,7 +2,7 @@
 	<div class="flex flex-col justify-between min-h-screen">
 		<NavBar> </NavBar>
 
-		<main>bibash</main>
+		<main>...</main>
 		<Footer></Footer>
 	</div>
 </template>

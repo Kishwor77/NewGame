@@ -1,9 +1,9 @@
 <template>
-	<div class="flex flex-col min-h-screen justify-between">
+	<div class="flex flex-col ">
 		<NavBar> </NavBar>
-		<main class="flex items-center, justify-center -mt-80">
+		<main class="flex items-center, justify-center">
 			<div
-				class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 lg:w-1/4"
+				class="flex flex-col justify-center px-6  lg:px-8 lg:w-1/4"
 			>
 				<div class="sm:mx-auto sm:w-full sm:max-w-sm">
 					<img
@@ -19,12 +19,6 @@
 				</div>
 
 				<div class="mt-10 min-w-full">
-					<div
-						class="h-10 shadow flex justify-center items-center text-red-500"
-						v-if="errorMsg !== ''"
-					>
-						{{ errorMsg }}
-					</div>
 					<form class="" @submit.prevent="login">
 						<div>
 							<label
@@ -99,15 +93,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
 import NavBar from "../components/NavBar.vue";
-
 import Footer from "../components/footer.vue";
 import { login } from "@/action/auth";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+import { useRouter } from 'vue-router';
 export default defineComponent({
-	/* eslint-disable */
 	name: "LogIn",
-
 	components: {
 		NavBar,
 		Footer,
@@ -120,20 +113,27 @@ export default defineComponent({
 			userdetails: "",
 		};
 	},
+	setup() {
+		const router = useRouter();
+		return { router };
+	},
 	methods: {
 		async login() {
 			const result: any = await login(this.email, this.password);
 			console.log("result", result);
-
 			if (result.data == undefined) {
-				this.errorMsg = result;
+				toast.error(result || 'An error occurred')
 			} else if (result.data.statusCode === 200) {
-				localStorage.setItem("token", result.data.token);
-				// window.history.go('/')
-				// this.$router.push("/");
+				toast.success(result?.data?.msg || 'Register SuccessFull')
+
+				localStorage.setItem("token", result?.data?.token);
+				localStorage.setItem("currentUser", JSON.stringify(result?.data?.data));
+				setTimeout(() => {
+					this.router.push('/');
+					window.location.reload();
+				}, 1000);
 			}
 		},
 	},
-	mounted() {},
 });
 </script>
