@@ -98,12 +98,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 import NavBar from "../components/NavBar.vue";
 
 import Footer from "../components/footer.vue";
 import { login } from "@/action/auth";
+import { useRouter } from 'vue-router';
 export default defineComponent({
 	/* eslint-disable */
 	name: "LogIn",
@@ -112,28 +113,32 @@ export default defineComponent({
 		NavBar,
 		Footer,
 	},
-	data() {
-		return {
-			email: "",
-			password: "",
-			errorMsg: "",
-			userdetails: "",
-		};
-	},
-	methods: {
-		async login() {
-			const result: any = await login(this.email, this.password);
+
+	setup() {
+		const email = ref('');
+        const password = ref('');
+		const errorMsg = ref('');
+		const router = useRouter()
+		const logins = async () => {
+			const result: any = await login(email.value, password.value);
 			console.log("result", result);
 
 			if (result.data == undefined) {
-				this.errorMsg = result;
+				errorMsg.value = result;
 			} else if (result.data.statusCode === 200) {
+				console.log
 				localStorage.setItem("token", result.data.token);
-				// window.history.go('/')
-				// this.$router.push("/");
+				router.push('/');
 			}
-		},
-	},
-	mounted() {},
+
+		};
+		
+			return {
+				email,
+				password,
+				errorMsg,
+				logins
+			}
+	}
 });
 </script>

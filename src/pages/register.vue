@@ -109,39 +109,46 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/footer.vue";
 import { signup } from "@/action/auth";
+import { useRouter } from 'vue-router';
 export default defineComponent ({
 	name: "SignUp",
 	components: {
 		NavBar,
 		Footer,
 	},
-	data() {
-		return {
-			name: "",
-			email: "",
-			password: "",
-			errorMsg: "",
-		};
-	},
-	methods: {
-		async signupHandaler() {
-			const reuslt = await signup(this.name, this.email, this.password);
+	
+	setup() {
+		const name = ref('');
+        const email = ref('');
+        const password = ref('');
+        const errorMsg = ref('');
+		const router = useRouter();
+		const  signupHandaler = async() => {
+			const reuslt = await signup(name.value, email.value, password.value);
 			if (reuslt?.response?.data.statusCode === 400) {
 				console.log("bibash");
-				this.errorMsg = reuslt?.response?.data.message;
+				errorMsg.value = reuslt?.response?.data.message;
 			} else if (reuslt?.response?.data.statusCode == 500) {
-				this.errorMsg = reuslt?.response?.data.message;
+				errorMsg.value = reuslt?.response?.data.message;
 			}
 			if (reuslt?.response?.data.statusCode === 200) {
-				window.history.pushState(null, '/login');
-				// window.history.push("/login");
+				console.log("Bibash")
+				router.push('/login');
 			}
-		},
-	},
+		};
+		return {
+			name,
+            email,
+            password,
+            errorMsg,
+            signupHandaler,
+        };
+	}
+	
 });
 </script>
