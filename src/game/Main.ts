@@ -54,13 +54,11 @@ enum State {
 }
 
 interface VolumeConfig {
-	decibel: number,
-	volumeLevel:number
+	decibel: number;
+	volumeLevel: number;
 }
 export class MainScene {
 	// called differentapi
-
-
 
 	private scene: any;
 	private engine: Engine;
@@ -71,7 +69,7 @@ export class MainScene {
 	private _playerUI: any;
 	private _pauseMenu: any;
 	private _controls!: any;
-	private cameraView: string = "normal"
+	private cameraView: string = "normal";
 	// public tutorial;
 
 	public mesh!: any;
@@ -83,12 +81,12 @@ export class MainScene {
 	public object!: any;
 	public RotateCount: number = 0;
 	public newFrequency: number = 0;
-	public hearingTest: boolean = true
-	public visualTest: boolean= false
+	public hearingTest: boolean = true;
+	public visualTest: boolean = false;
 
 	//for the visual test
 	public soundCount: number = 0;
-	public visualCount: number =  Math.floor(Math.random() * (5 - 3 + 1) + 3);
+	public visualCount: number = Math.floor(Math.random() * (5 - 3 + 1) + 3);
 	public visualTestCount: number = 0;
 
 	// Math.floor(Math.random() * (7 - 5 + 1) + 5)
@@ -114,7 +112,7 @@ export class MainScene {
 	//display text
 	public text: any = "";
 	public score: number = 10;
-	public impImage: string = '';
+	public impImage: string = "";
 	public _textDisplay!: any;
 	public _scoreDisplay!: any;
 
@@ -202,10 +200,7 @@ export class MainScene {
 	public startSound!: Sound;
 	public userID: number = 0;
 
-
-	// volume config 
-
-
+	// volume config
 
 	public volumeConfig: VolumeConfig[] = [];
 
@@ -227,29 +222,26 @@ export class MainScene {
 
 	public onRun = new Observable();
 	constructor(private canvas: HTMLCanvasElement) {
-
 		this.engine = new Engine(this.canvas, true);
-
 
 		this.volumeConfigAction().then((responseData) => {
 			this.volumeConfig = responseData.data.data;
-		})
-		/* 
-		*  return random imps for the 
-		*/
+		});
+		/*
+		 *  return random imps for the
+		 */
 		this.randomImp().then((responseData) => {
 			const imp = responseData.data.data;
-		this.impImage = `${process.env.VUE_APP_BACKEND_IMAGE_URL}/${imp.image}`;
+			this.impImage = `${process.env.VUE_APP_BACKEND_IMAGE_URL}/${imp.image}`;
 		});
-		this.randomImp()
+		this.randomImp();
 
-		/* 
-		*
-	    *
-		*  return the user data if there is no user data game will not load or invalid barerr token
-		*/
+		/*
+		 *
+		 *
+		 *  return the user data if there is no user data game will not load or invalid barerr token
+		 */
 		this.datacalled().then((responseData) => {
-
 			this.userGame = responseData.data.data;
 			this.scene = this.CreateScene();
 			this.scene.enablePhysics(
@@ -265,12 +257,14 @@ export class MainScene {
 			this.inputMap = {};
 			this.scene.actionManager.registerAction(
 				new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
-					this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+					this.inputMap[evt.sourceEvent.key] =
+						evt.sourceEvent.type == "keydown";
 				}),
 			);
 			this.scene.actionManager.registerAction(
 				new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
-					this.inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+					this.inputMap[evt.sourceEvent.key] =
+						evt.sourceEvent.type == "keydown";
 				}),
 			);
 
@@ -298,42 +292,35 @@ export class MainScene {
 			});
 		});
 
-		/* 
-		*
-		* call the function to store data during th screan load
-		* 
-		*/
+		/*
+		 *
+		 * call the function to store data during th screan load
+		 *
+		 */
 
-		
-		this.lastPlayedGame()
-		
-		
+		this.lastPlayedGame();
+
 		setInterval(() => {
-    		this.datacalled();
+			this.datacalled();
 		}, 3000);
-		
-		
 	}
 
 	// call the random data
 	async randomImp() {
-		const data = await axios.get('settings/random-imp');
+		const data = await axios.get("settings/random-imp");
 		return data;
 	}
 
-	
-
-	/* 
-	*
-	* this function will store volume configuration on the public variable
-	* 
-	*/
+	/*
+	 *
+	 * this function will store volume configuration on the public variable
+	 *
+	 */
 
 	async volumeConfigAction() {
-		const data = await axios.get('settings/decibel');
+		const data = await axios.get("settings/decibel");
 		return data;
 	}
-
 
 	// get the response from user data
 	async datacalled() {
@@ -343,7 +330,7 @@ export class MainScene {
 			},
 		});
 		this.userID = data?.data?.data?.userId;
-		this.frequency = data?.data?.data?.frequency
+		this.frequency = data?.data?.data?.frequency;
 		this.earType = data?.data?.data?.earSide === "left" ? -1 : 1;
 		this.volumeControl = data?.data?.data?.soundLevel;
 		this.speed = data?.data?.data?.speed;
@@ -351,26 +338,30 @@ export class MainScene {
 		return data;
 	}
 
-
 	// update the user game status in the record
-	async updateUserGame(frequency: number, volume: number, earSide: string, coin: number) {
+	async updateUserGame(
+		frequency: number,
+		volume: number,
+		earSide: string,
+		coin: number,
+	) {
 		axios.put(
-				"game/user/update",
-				{
-					frequency: frequency,
-					soundLevel: volume,
-					earSide: earSide,
-					coin,
+			"game/user/update",
+			{
+				frequency: frequency,
+				soundLevel: volume,
+				earSide: earSide,
+				coin,
+			},
+			{
+				headers: {
+					Authorization: "Bearer " + localStorage.getItem("token"),
 				},
-				{
-					headers: {
-						Authorization: "Bearer " + localStorage.getItem("token"),
-					},
-				},
-			);
+			},
+		);
 	}
 
-	async createPhase(name:string) {
+	async createPhase(name: string) {
 		axios.post(
 			"settings/add-phase",
 			{
@@ -390,7 +381,7 @@ export class MainScene {
 				Authorization: "Bearer " + localStorage.getItem("token"),
 			},
 		});
-		
+
 		return data?.data?.data;
 	}
 
@@ -402,7 +393,7 @@ export class MainScene {
 		earside: string,
 		isThreshold?: boolean,
 		isLastPlay?: boolean,
-		phaseId?:number
+		phaseId?: number,
 	) {
 		await axios.post(
 			"sound-test/add",
@@ -413,49 +404,52 @@ export class MainScene {
 				earSide: earside,
 				isThreshold,
 				isLastPlay,
-				phaseId
-
+				phaseId,
 			},
 			{
 				headers: {
-					Authorization:
-						"Bearer " + localStorage.getItem("token"),
+					Authorization: "Bearer " + localStorage.getItem("token"),
 				},
 			},
 		);
 	}
 
-	async updateSoundTesting(
-			{ isThreshold, isLastPlay, id }
-			: { isThreshold?: boolean; isLastPlay?: boolean; id: number; }) {
+	async updateSoundTesting({
+		isThreshold,
+		isLastPlay,
+		id,
+	}: {
+		isThreshold?: boolean;
+		isLastPlay?: boolean;
+		id: number;
+	}) {
 		await axios.patch(
 			`sound-test/update/${id}`,
 			{
 				isThreshold,
-				isLastPlay
+				isLastPlay,
 			},
 			{
 				headers: {
-					Authorization:
-						"Bearer " + localStorage.getItem("token"),
+					Authorization: "Bearer " + localStorage.getItem("token"),
 				},
 			},
 		);
 	}
 
-	/* 
-	*
-	* user last played game 
-	* 
-	*/
+	/*
+	 *
+	 * user last played game
+	 *
+	 */
 
-		async lastPlayedGame() {
+	async lastPlayedGame() {
 		const data = await axios.get("game/user/get-last-play", {
 			headers: {
 				Authorization: "Bearer " + localStorage.getItem("token"),
 			},
 		});
-		
+
 		return data?.data?.data;
 	}
 
@@ -468,10 +462,6 @@ export class MainScene {
 		scene.gravity = new Vector3(0, gravity / frameperSecond, 0);
 
 		//  adding Gui menu
-
-
-
-
 
 		const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 		this._playerUI = playerUI;
@@ -741,7 +731,6 @@ export class MainScene {
 					mesh.checkCollisions = false;
 
 					this.scene.onBeforeRenderObservable.add(() => {
-					
 						if (
 							(this.mobileDown || this.mobileLeft || this.mobileRight,
 							this.mobileUp)
@@ -751,10 +740,8 @@ export class MainScene {
 							mesh.checkCollisions = false;
 						}
 						if (mesh.name.includes("colllision")) {
-							
 							mesh.checkCollisions = true;
 							mesh.isVisible = true;
-							
 						}
 
 						// if (mesh.name == "objectdisplay") {
@@ -914,35 +901,34 @@ export class MainScene {
 
 					this._scoreDisplay.text = `Score: ${this.score}`;
 
-
-					/* 
-					*
-				   	* if the game and the object is loaded this update the player, keyword and control of the player
-					* 
-					*/
+					/*
+					 *
+					 * if the game and the object is loaded this update the player, keyword and control of the player
+					 *
+					 */
 					if (this.Loaded) {
 						this._updateFromKeyboard();
 						this._animatePlayer();
 						this._updateFromControls();
 					}
 
-					/* 
-					*
-					* this case will check wheather 
-					* the game is paused,
-					* frequency is playing 
-					* game is loaded  
-					* game is control
-					* hearing test
-					* visual test
-					*  
-					* @param e(1gamePaused && !FrequencyPlay && Loaded && !_mobileJump && this.soundCount != this.visualCount && hearingTest && !visualTest)
-					* 
-					* if all the condition matched then the system will play the frequency and after 8 
-					* second user will lose the game if the user doesnot click the button
-					* 
-					* 
-					*/
+					/*
+					 *
+					 * this case will check wheather
+					 * the game is paused,
+					 * frequency is playing
+					 * game is loaded
+					 * game is control
+					 * hearing test
+					 * visual test
+					 *
+					 * @param e(1gamePaused && !FrequencyPlay && Loaded && !_mobileJump && this.soundCount != this.visualCount && hearingTest && !visualTest)
+					 *
+					 * if all the condition matched then the system will play the frequency and after 8
+					 * second user will lose the game if the user doesnot click the button
+					 *
+					 *
+					 */
 					if (
 						!this.gamePaused &&
 						!this.FrequencyPlay &&
@@ -968,84 +954,153 @@ export class MainScene {
 						this.hearingTest = false;
 						this.soundCount++;
 						setTimeout(async () => {
-							const phaseData = await this.findPhase()
+							const phaseData = await this.findPhase();
 							if (this._mobileJump) {
-								const lastGame = await this.lastPlayedGame()
+								const lastGame = await this.lastPlayedGame();
 								const earside = this.earType === -1 ? "left" : "right";
 								this.score = this.score + 1;
 								if (!lastGame) {
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true,phaseData[0].id )
+									this.addSoundTesting(
+										this.frequency,
+										this.volumeControl,
+										true,
+										earside,
+										false,
+										true,
+										phaseData[0].id,
+									);
+								} else {
+									this.updateSoundTesting({
+										id: lastGame.id,
+										isThreshold: false,
+										isLastPlay: false,
+									});
+									this.addSoundTesting(
+										this.frequency,
+										this.volumeControl,
+										true,
+										earside,
+										false,
+										true,
+										phaseData[0].id,
+									);
 								}
-								else {
-									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
-									this.addSoundTesting(this.frequency, this.volumeControl, true, earside, false, true, phaseData[0].id)
-								}
-								this.updateUserGame(this.frequency, this.volumeControl - 5, earside, this.score);
+								this.updateUserGame(
+									this.frequency,
+									this.volumeControl - 5,
+									earside,
+									this.score,
+								);
 								this.frequencyhear = true;
 								this.FrequencyPlay = false;
 								this.hearCount = this.hearCount + 1;
 							} else {
-								const lastGame = await this.lastPlayedGame()
+								const lastGame = await this.lastPlayedGame();
 								this._soundControl = false;
 								this.lossSound.play();
 								this.lossGame = true;
 								let earSide = this.earType === -1 ? "left" : "right";
 								this.score = this.score - 0.5;
 								if (!lastGame) {
-									this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true, phaseData[0].id)
-									this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
-								}
-								else {
-									this.updateSoundTesting({ id: lastGame.id, isThreshold: false, isLastPlay: false })
-									if (this.frequency === lastGame.frequency && lastGame.isHeard) {
-										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, true, false, phaseData[0].id)
+									await this.addSoundTesting(
+										this.frequency,
+										this.volumeControl,
+										false,
+										earSide,
+										false,
+										true,
+										phaseData[0].id,
+									);
+									await this.updateUserGame(
+										this.frequency,
+										this.volumeControl + 10,
+										earSide,
+										this.score,
+									);
+								} else {
+									this.updateSoundTesting({
+										id: lastGame.id,
+										isThreshold: false,
+										isLastPlay: false,
+									});
+									if (
+										this.frequency === lastGame.frequency &&
+										lastGame.isHeard
+									) {
+										this.addSoundTesting(
+											this.frequency,
+											this.volumeControl,
+											false,
+											earSide,
+											true,
+											false,
+											phaseData[0].id,
+										);
 										if (lastGame.frequency === 500) {
-											this.frequency = 1000
+											this.frequency = 1000;
 										}
 										if (lastGame.frequency === 1000) {
-											this.frequency = 2000
+											this.frequency = 2000;
 										}
 										if (lastGame.frequency === 2000) {
-											this.frequency = 4000
+											this.frequency = 4000;
 										}
 										if (lastGame.frequency === 4000) {
-											this.frequency = 500
+											this.frequency = 500;
 											earSide = this.earType === 1 ? "left" : "right";
 										}
-										if (lastGame.frequency === 4000 && lastGame.earSide === 'right') {
+										if (
+											lastGame.frequency === 4000 &&
+											lastGame.earSide === "right"
+										) {
 											this.gamePaused = true;
 											startBtn.isVisible = false;
-											window.open(`${process.env.VUE_APP_FRONTEND_URL}/user/${this.userID}`)
-											let phaseName = 'Second';
-									
-											if (phaseData[0].name === 'First') {
-												phaseName = 'Second'
-											}else if (phaseData[0].name === 'Second') {
-												phaseName = 'Third'
-											}else if (phaseData[0].name === 'Third') {
-												phaseName = 'Fourth'
+											window.open(
+												`${process.env.VUE_APP_FRONTEND_URL}/user/${this.userID}`,
+											);
+											let phaseName = "Second";
+
+											if (phaseData[0].name === "First") {
+												phaseName = "Second";
+											} else if (phaseData[0].name === "Second") {
+												phaseName = "Third";
+											} else if (phaseData[0].name === "Third") {
+												phaseName = "Fourth";
+											} else if (phaseData[0].name === "Fourth") {
+												phaseName = "Fifth";
+											} else if (phaseData[0].name === "Fifth") {
+												phaseName = "Sixth";
+											} else if (phaseData[0].name === "Sixth") {
+												phaseName = "Seventh";
 											}
-											else if (phaseData[0].name === 'Fourth') {
-												phaseName = 'Fifth'
-											}
-											else if (phaseData[0].name === 'Fifth') {
-												phaseName = 'Sixth'
-											}
-											else if (phaseData[0].name === 'Sixth') {
-												phaseName = 'Seventh'
-											}
-												
-											this.createPhase(phaseName)
+
+											this.createPhase(phaseName);
 										}
-										this.updateUserGame(this.frequency, 50, earSide, this.score);
+										this.updateUserGame(
+											this.frequency,
+											50,
+											earSide,
+											this.score,
+										);
+									} else {
+										this.addSoundTesting(
+											this.frequency,
+											this.volumeControl,
+											false,
+											earSide,
+											false,
+											true,
+											phaseData[0].id,
+										);
+										this.updateUserGame(
+											this.frequency,
+											this.volumeControl + 10,
+											earSide,
+											this.score,
+										);
 									}
-									else {
-										this.addSoundTesting(this.frequency, this.volumeControl, false, earSide, false, true)
-										this.updateUserGame(this.frequency, this.volumeControl + 10, earSide, this.score);
-									}
-									
 								}
-								
+
 								setTimeout(async () => {
 									this.lossSound.stop();
 									this.lossGame = false;
@@ -1053,26 +1108,23 @@ export class MainScene {
 									this.lossCount++;
 									this.count = 0;
 									this.FrequencyPlay = false;
-									
 								}, 4000);
 							}
 						}, 3000);
 					}
 					// visual test
-						if (
+					if (
 						this.soundCount == this.visualCount &&
 						this.Loaded &&
 						!this.gamePaused &&
 						this.visualTestCount == 0 &&
 						!this.FrequencyPlay &&
 						!this.visualTest
-						
-						) {
-							
-							this.visualTest = true
-							this._soundControl = true;
-							this.soundCount++;
-							this.visualTestCount++;
+					) {
+						this.visualTest = true;
+						this._soundControl = true;
+						this.soundCount++;
+						this.visualTestCount++;
 						setTimeout(() => {
 							this._visualTest.isVisible = true;
 							setTimeout(() => {
@@ -1086,22 +1138,26 @@ export class MainScene {
 										setTimeout(() => {
 											this.lossSound.stop();
 											this.soundCount = 0;
-											this.visualCount = Math.floor(Math.random() * (5 - 3 + 1) + 3);
+											this.visualCount = Math.floor(
+												Math.random() * (5 - 3 + 1) + 3,
+											);
 											this.lossGame = false;
 											this.visualTestCount = 0;
 											this.lossCount++;
 											this.count = 0;
 											this.score = this.score - 0.5;
-											this.visualTest = false
+											this.visualTest = false;
 										}, 1000);
 									}, 3000);
 								} else {
 									this._visualTest.isVisible = false;
-									this.visualCount = Math.floor(Math.random() * (5 - 3 + 1) + 3)
+									this.visualCount = Math.floor(
+										Math.random() * (5 - 3 + 1) + 3,
+									);
 									// this.visualTest = false
 								}
 							}, 3000);
-						},2000)
+						}, 2000);
 					}
 				});
 			},
@@ -1118,7 +1174,7 @@ export class MainScene {
 		return this.camera;
 	}
 
-		public activateCameraImps(): UniversalCamera {
+	public activateCameraImps(): UniversalCamera {
 		this.scene.registerBeforeRender(() => {
 			this._updateCameraImp();
 		});
@@ -1325,21 +1381,18 @@ export class MainScene {
 		var gainNode = audioCtx.createGain();
 
 		const stereoNode = new StereoPannerNode(audioCtx, { pan: this.earType });
-		let volumeValue:number = 0.0001;
+		let volumeValue: number = 0.0001;
 
 		await Promise.all(
 			this.volumeConfig?.map((item) => {
-			if (item.decibel === this.volumeControl) 
-				volumeValue = item.volumeLevel
-			})
-		)
+				if (item.decibel === this.volumeControl) volumeValue = item.volumeLevel;
+			}),
+		);
 
-		
-			stereoNode.pan.value = this.earType;
-			oscillator.type = "sine"; // Set the waveform to a sine wave
-			oscillator.frequency.value = this.frequency; // Set the frequency to 400Hz
-			gainNode.gain.value = volumeValue
-		
+		stereoNode.pan.value = this.earType;
+		oscillator.type = "sine"; // Set the waveform to a sine wave
+		oscillator.frequency.value = this.frequency; // Set the frequency to 400Hz
+		gainNode.gain.value = volumeValue;
 
 		// Connect the oscillator to the audio destination (speakers)
 		oscillator
@@ -1356,7 +1409,6 @@ export class MainScene {
 			audioCtx.close();
 		}, 1000);
 	}
-
 
 	//  keyboard controll
 	private _updateFromKeyboard(): void {
@@ -1536,7 +1588,6 @@ export class MainScene {
 	// 	});
 	// }
 
-
 	// update the players
 	private _updateFromControls(): void {
 		this._deltaTime = this.scene.getEngine().getDeltaTime() / 1000.0;
@@ -1601,7 +1652,6 @@ export class MainScene {
 
 		this.mesh.moveWithCollisions(this._moveDirection);
 	}
-
 
 	// make player walk and do activities
 	private _animatePlayer(): void {
@@ -1769,13 +1819,12 @@ export class MainScene {
 
 									this.winGame = true;
 									let earside = this.earType === -1 ? "left" : "right";
-									
+
 									// this.activateCameraImps()
 									this.winSound.play();
 									setTimeout(() => {
 										// this.activatePlayerCamera()
-										
-										
+
 										this.hearingTest = true;
 										this.winSound.stop();
 										this.winGame = false;
@@ -1786,7 +1835,7 @@ export class MainScene {
 											this.visualCount = Math.floor(
 												Math.random() * (5 - 3 + 1) + 3,
 											);
-											
+
 											this.soundCount = 0;
 											this.visualTestCount = 0;
 											this.visualTest = false;
@@ -1815,7 +1864,6 @@ export class MainScene {
 		);
 	}
 
-
 	private _updateCameraImp(): void {
 		//trigger areas for rotating camera view
 
@@ -1823,11 +1871,14 @@ export class MainScene {
 
 		this._camRoot.position = Vector3.Lerp(
 			this._camRoot.position,
-			new Vector3(this.displayPosition.x +2, centerPlayer, this.mesh.position.z + 10),
+			new Vector3(
+				this.displayPosition.x + 2,
+				centerPlayer,
+				this.mesh.position.z + 10,
+			),
 			0.9,
 		);
 	}
-
 
 	// setup the player camera
 	private _setupPlayerCamera(): UniversalCamera {
@@ -1858,7 +1909,6 @@ export class MainScene {
 		this.scene.activeCamera = this.camera;
 		return this.camera;
 	}
-
 
 	// load the sound for the game
 	private _loadSounds(): void {
