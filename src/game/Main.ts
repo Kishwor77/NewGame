@@ -985,12 +985,16 @@ export class MainScene {
 										phaseData[0].id,
 									);
 								}
-								this.updateUserGame(
-									this.frequency,
-									this.volumeControl - 5,
-									earside,
-									this.score,
-								);
+								if (this.volumeControl < 50) {
+									this.updateUserGame(this.frequency, 50, earside, this.score);
+								} else {
+									this.updateUserGame(
+										this.frequency,
+										this.volumeControl - 5,
+										earside,
+										this.score,
+									);
+								}
 								this.frequencyhear = true;
 								this.FrequencyPlay = false;
 								this.hearCount = this.hearCount + 1;
@@ -1011,12 +1015,21 @@ export class MainScene {
 										true,
 										phaseData[0].id,
 									);
-									await this.updateUserGame(
-										this.frequency,
-										this.volumeControl + 10,
-										earSide,
-										this.score,
-									);
+									if (this.volumeControl > 90) {
+										await this.updateUserGame(
+											this.frequency,
+											90,
+											earSide,
+											this.score,
+										);
+									} else {
+										await this.updateUserGame(
+											this.frequency,
+											this.volumeControl + 10,
+											earSide,
+											this.score,
+										);
+									}
 								} else {
 									this.updateSoundTesting({
 										id: lastGame.id,
@@ -1092,12 +1105,21 @@ export class MainScene {
 											true,
 											phaseData[0].id,
 										);
-										this.updateUserGame(
-											this.frequency,
-											this.volumeControl + 10,
-											earSide,
-											this.score,
-										);
+										if (this.volumeControl > 90) {
+											this.updateUserGame(
+												this.frequency,
+												90,
+												earSide,
+												this.score,
+											);
+										} else {
+											this.updateUserGame(
+												this.frequency,
+												this.volumeControl + 10,
+												earSide,
+												this.score,
+											);
+										}
 									}
 								}
 
@@ -1387,9 +1409,9 @@ export class MainScene {
 			this.volumeConfig?.map((item) => {
 				if (item.decibel === this.volumeControl) {
 					volumeValue = item.volumeLevel;
-				} else if (this.volumeControl > 0.2) {
+				} else if (this.volumeControl > 90) {
 					volumeValue = 0.2;
-				} else if (this.volumeControl < 0.001) {
+				} else if (this.volumeControl < 50) {
 					volumeValue = 0.001;
 				}
 			}),
