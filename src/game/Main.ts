@@ -1381,11 +1381,17 @@ export class MainScene {
 		var gainNode = audioCtx.createGain();
 
 		const stereoNode = new StereoPannerNode(audioCtx, { pan: this.earType });
-		let volumeValue: number = 0.0001;
+		let volumeValue: number = 0.001;
 
 		await Promise.all(
 			this.volumeConfig?.map((item) => {
-				if (item.decibel === this.volumeControl) volumeValue = item.volumeLevel;
+				if (item.decibel === this.volumeControl) {
+					volumeValue = item.volumeLevel;
+				} else if (this.volumeControl > 0.2) {
+					volumeValue = 0.2;
+				} else if (this.volumeControl < 0.001) {
+					volumeValue = 0.001;
+				}
 			}),
 		);
 
